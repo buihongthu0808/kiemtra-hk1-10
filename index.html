@@ -14,7 +14,6 @@
             background-color: #EFF6FF; /* blue-50 */
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2360A5FA' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
-        /* FIXED: Add this rule to reset native button styles on mobile */
         .quiz-option {
             -webkit-appearance: none;
             appearance: none;
@@ -140,6 +139,8 @@
     </div>
 
     <script type="module">
+        // The JavaScript logic remains the same as the previous correct version.
+        // All functionality is preserved.
         const studentList = {
             "10A1": [
                 { stt: 1, name: "Nguyễn Văn An" },
@@ -350,7 +351,7 @@
             submitBtn.disabled = true; // NEW: Disable button by default
         }
 
-        function renderMultipleChoice(e){e.options.forEach((t,n)=>{const o=document.createElement("button"),s=String.fromCharCode(65+n)+". ";o.textContent=s+t,o.classList.add("w-full","text-left","p-4","border","border-gray-300","rounded-lg","hover:bg-gray-100","transition-colors","duration-200","quiz-option"),o.onclick=()=>selectMultipleChoiceOption(t,o),userAnswers[currentQuestionIndex]===t&&o.classList.add("selected"),optionsContainer.appendChild(o)})}
+        function renderMultipleChoice(e){e.options.forEach((t,n)=>{const o=document.createElement("button"),s=String.fromCharCode(65+n)+". ";o.textContent=s+t,o.classList.add("w-full","text-left","p-4","border","border-blue-200","rounded-xl","transition-colors","duration-200","quiz-option"),o.onclick=()=>selectMultipleChoiceOption(t,o),userAnswers[currentQuestionIndex]===t&&o.classList.add("selected"),optionsContainer.appendChild(o)})}
         function renderTrueFalse(e){e.options.forEach((t,n)=>{const o=document.createElement("div");o.className="p-4 border border-gray-200 rounded-lg flex justify-between items-center";const s=document.createElement("p");s.className="flex-grow mr-4";const i=String.fromCharCode(97+n)+") ";s.textContent=i+t.text;const a=document.createElement("div");a.className="flex space-x-2 flex-shrink-0";const r=document.createElement("button");r.textContent="Đúng",r.className="tf-btn px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 bg-green-100 text-green-800 hover:bg-green-200",r.onclick=()=>selectTrueFalseOption(n,!0,r,l);const l=document.createElement("button");l.textContent="Sai",l.className="tf-btn px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 bg-red-100 text-red-800 hover:bg-red-200",l.onclick=()=>selectTrueFalseOption(n,!1,r,l),!0===userAnswers[currentQuestionIndex][n]?r.classList.add("selected"):!1===userAnswers[currentQuestionIndex][n]&&l.classList.add("selected"),a.appendChild(r),a.appendChild(l),o.appendChild(s),o.appendChild(a),optionsContainer.appendChild(o)})}
         
         function selectMultipleChoiceOption(e,t){
