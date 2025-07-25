@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Kiểm Tra Vui Nhộn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Quicksand', sans-serif;
+            background-color: #EFF6FF; /* blue-50 */
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2360A5FA' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .quiz-option.selected { 
+            background-color: #3B82F6; /* blue-500 */
+            color: white; 
+            border-color: #2563EB; /* blue-600 */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        /* FIXED: Added correct/incorrect classes for review */
+        .review-option.correct {
+            background-color: #DCFCE7; /* green-100 */
+            border-color: #22C55E; /* green-500 */
+            color: #15803D; /* green-800 */
+        }
+        .review-option.incorrect {
+            background-color: #FEE2E2; /* red-100 */
+            border-color: #EF4444; /* red-500 */
+            color: #B91C1C; /* red-800 */
+        }
+        .tf-btn.selected { 
+            transform: scale(1.1); 
+            box-shadow: 0 0 0 3px #3B82F6; /* blue-500 */
+        }
+        button:disabled { 
+            background-color: #d1d5db; /* gray-400 */
+            cursor: not-allowed; 
+        }
+        .main-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="app-container" class="main-container w-full max-w-2xl mx-auto rounded-3xl shadow-2xl shadow-blue-200 p-6 md:p-8 transition-all duration-500">
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-bold text-blue-800">KIỂM TRA HỌC KÌ I NĂM HỌC 2025 - 2026</h1>
+                <h2 class="text-xl font-semibold text-blue-700 mt-1">MÔN: TIN HỌC - LỚP: 10</h2>
+                <p class="text-base text-blue-600 mt-2">Thời gian làm bài: 5 phút</p>
+            </div>
+            <p class="text-center text-gray-600 mb-6 border-t border-blue-200 pt-6">Vui lòng chọn đúng thông tin của bạn để bắt đầu.</p>
+            <div class="space-y-4">
+                <div>
+                    <label for="class-select" class="block text-sm font-bold text-gray-700 mb-2">1. Chọn Lớp:</label>
+                    <select id="class-select" class="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition">
+                        <option value="">-- Vui lòng chọn lớp --</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="name-select" class="block text-sm font-bold text-gray-700 mb-2">2. Chọn Tên của bạn:</label>
+                    <select id="name-select" class="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition" disabled>
+                        <option value="">-- Chờ chọn lớp --</option>
+                    </select>
+                </div>
+            </div>
+            <button id="start-btn" class="mt-8 w-full bg-blue-500 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg" disabled>Bắt đầu làm bài</button>
+            <p id="info-error" class="text-red-500 text-sm mt-2 text-center hidden">Vui lòng chọn đầy đủ thông tin.</p>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+             <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Câu <span id="question-number"></span>/<span id="total-questions"></span></h2>
+                <div class="flex items-center space-x-2 bg-red-100 text-red-700 font-semibold px-4 py-2 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span id="timer">05:00</span>
+                </div>
+            </div>
+            
+            <div id="instruction-block" class="hidden mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <h3 id="part-name" class="text-lg font-bold text-blue-800"></h3>
+                <p id="part-instruction" class="text-sm text-blue-700 mt-1"></p>
+            </div>
+
+            <div id="question-container" class="mb-6">
+                <p id="question-text" class="text-lg font-semibold text-gray-900 mb-5 whitespace-pre-wrap"></p>
+                <div id="options-container" class="space-y-4"></div>
+            </div>
+            <button id="submit-btn" class="w-full bg-blue-500 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg" disabled>Tiếp theo</button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden">
+             <div id="result-content">
+                <h1 class="text-4xl font-bold text-center text-green-600 mb-2">Hoàn thành!</h1>
+                <p class="text-center text-gray-600 mb-4">Đây là kết quả bài làm của bạn, <strong id="result-student-name" class="text-blue-600"></strong>.</p>
+                <div class="bg-blue-50 rounded-2xl p-6 mb-6 text-center">
+                    <p class="text-lg text-blue-800">Điểm số của bạn:</p>
+                    <p class="text-6xl font-extrabold text-blue-900 my-2"><span id="score"></span> / <span id="max-score"></span></p>
+                    <p class="text-blue-700">Thời gian làm bài: <span id="time-taken" class="font-medium"></span></p>
+                </div>
+             </div>
+             <div class="mt-6 pt-6 border-t border-blue-200">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Gửi kết quả cho giáo viên</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <button id="copy-btn" class="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" /><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2H6zm1 4a1 1 0 100 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z" /></svg>
+                        <span>Sao chép (Zalo, Messenger)</span>
+                    </button>
+                </div>
+                 <p id="copy-success" class="text-green-600 text-sm mt-3 text-center hidden">Đã sao chép thành công!</p>
+             </div>
+             <div id="review-section" class="mt-6 pt-6 border-t border-blue-200">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Xem lại bài làm</h3>
+                <div id="review-container" class="space-y-4"></div>
+            </div>
+            <div id="feedback-section" class="mt-6 pt-6 border-t border-blue-200">
+                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nhận xét</h3>
+                 <div id="feedback-container" class="text-sm space-y-4"></div>
+            </div>
+             <div class="mt-8 pt-6 border-t border-blue-200 text-center">
+                 <button id="end-quiz-btn" class="bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center justify-center space-x-2">
+                    <span>Kết thúc</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // The JavaScript logic remains the same as the previous correct version.
+        // All functionality is preserved.
+        const studentList = {
+            "10A1": [
+                { stt: 1, name: "Nguyễn Văn An" },
+                { stt: 2, name: "Phạm Minh Cường" },
+                { stt: 3, name: "Bùi Thị Hồng Thu" },
+                { stt: 4, name: "Nguyễn Tô Sơn" }
+            ],
+            "10A2": [
+                { stt: 1, name: "Hoàng Văn Giang" },
+                { stt: 2, name: "Vũ Thị Hương" },
+                { stt: 3, name: "Đỗ Văn Ích" },
+                { stt: 4, name: "Bùi Thị Kim" },
+                { stt: 5, name: "Trần Văn Long" }
+            ],
+            "10A3": [
+                { stt: 1, name: "Lý Thị Mai" },
+                { stt: 2, name: "Ngô Gia Nam" },
+                { stt: 3, name: "Dương Thị Oanh" },
+                { stt: 4, name: "Phan Văn Phúc" },
+                { stt: 5, name: "Hà Thị Quỳnh" }
+            ],
+            "10A4": [
+                { stt: 1, name: "Học sinh A4-1" },
+                { stt: 2, name: "Học sinh A4-2" }
+            ],
+            "10A5": [
+                { stt: 1, name: "Học sinh A5-1" },
+                { stt: 2, name: "Học sinh A5-2" }
+            ],
+            "10A6": [
+                { stt: 1, name: "Học sinh A6-1" },
+                { stt: 2, name: "Học sinh A6-2" }
+            ],
+            "10A7": [
+                { stt: 1, name: "Học sinh A7-1" },
+                { stt: 2, name: "Học sinh A7-2" }
+            ]
+        };
+
+        const fullQuizData = [
+            {
+                part: "I. PHẦN TRẮC NGHIỆM NHIỀU PHƯƠNG ÁN LỰA CHỌN",
+                instruction: "Từ câu 1 đến câu 12, mỗi câu hỏi học sinh chỉ chọn một phương án.",
+                questions: [
+                    { type: "multiple-choice", topic: "Lệnh lặp", question: "Phương án nào dưới đây mô tả sự khác biệt giữa câu lệnh lặp for và while trong Python?", options: ["Câu lệnh for được sử dụng khi số lần lặp không xác định, còn while được sử dụng khi số lần lặp đã biết.", "Câu lệnh for được sử dụng khi biết số lần lặp và có thể lặp qua một dãy giá trị, trong khi while không biết trước số lần lặp, lặp khi điều kiện tiếp tục được thỏa mãn.", "Cả for và while đều dùng để lặp qua một dây giá trị xác định.", "Câu lệnh for không thể lặp vô hạn, trong khi while có thể."], answer: "Câu lệnh for được sử dụng khi biết số lần lặp và có thể lặp qua một dãy giá trị, trong khi while không biết trước số lần lặp, lặp khi điều kiện tiếp tục được thỏa mãn." },
+                    { type: "multiple-choice", topic: "Hàm", question: "Khi gọi một hàm có tham số nhưng không gán giá trị mặc định cho tham số thì điều gì sẽ xảy ra dưới đây nếu không truyền đủ số lượng đối số cho tham số trong lời gọi hàm?", options: ["Python sẽ tự động gán giá trị None cho các tham số thiếu.", "Chương trình sẽ báo lỗi TypeError.", "Chương trình bỏ qua tham số thiếu và tiếp tục chạy.", "Python sẽ tự động điền giá trị mặc định 0."], answer: "Chương trình sẽ báo lỗi TypeError." },
+                    { type: "multiple-choice", topic: "Hàm", question: "Phương án nào sau đây đúng khi nói về hàm abs() trong Python?", options: ["Hàm abs() trả về phần thực của một số phức.", "Hàm abs() trả về giá trị tuyệt đối của một số.", "Hàm abs() trả về giá trị âm của một số.", "Hàm abs() trả về phần nguyên của một số thực."], answer: "Hàm abs() trả về giá trị tuyệt đối của một số." },
+                    { type: "multiple-choice", topic: "Xâu ký tự", question: "Khi sử dụng hàm len(s) với một xâu kí tự s, kết quả trả về là gì?", options: ["Số kí tự trong xâu, bao gồm cả dấu cách", "Số lượng từ có trong xâu", "Chỉ tính các kí tự chữ cái trong xâu", "Độ dài tối đa mà xâu có thể chứa"], answer: "Số kí tự trong xâu, bao gồm cả dấu cách" },
+                    { type: "multiple-choice", topic: "Xâu ký tự", question: "Cho đoạn lệnh Python sau:\ny = \"abcdef\"\nprint(y[:4])\nKết quả nào sau đây là đúng khi thực hiện đoạn lệnh trên?", options: ["abcd", "bcde", "abc", "abcdef"], answer: "abcd" },
+                    { type: "multiple-choice", topic: "Danh sách", question: "Phương án nào sau đây mô tả đúng cách truy cập phần tử trong danh sách A tại vị trí chỉ số 2?", options: ["A<2>", "A(2)", "A{2}", "A[2]"], answer: "A[2]" },
+                    { type: "multiple-choice", topic: "Danh sách", question: "Cho danh sách sau: A = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\", \"fig\", \"grape\"]. Phương án nào sau đây nêu đúng giá trị của phần tử A[5]?", options: ["\"elderberry\"", "\"grape\"", "\"fig\"", "\"date\""], answer: "\"fig\"" },
+                    { type: "multiple-choice", topic: "Lỗi chương trình", question: "Phương án nào sau đây điền từ đúng vào chỗ trống: \"... là một lỗi khi chương trình không tuân theo các quy định ngữ pháp của ngôn ngữ lập trình\"?", options: ["Lỗi ngữ nghĩa.", "Lỗi cú pháp.", "Lỗi logic.", "Lỗi ngoại lệ."], answer: "Lỗi cú pháp." },
+                    { type: "multiple-choice", topic: "Lập trình", question: "Phát biểu nào sau đây giải thích tại sao việc kiểm thử chương trình lại quan trọng trong quá trình lập trình?", options: ["Kiểm thử giúp đảm bảo rằng chương trình đã hoàn chỉnh và có thể chạy ngay lập tức mà không cần thay đổi gì.", "Kiểm thử giúp xác định lỗi và điều chỉnh chương trình để đảm bảo kết quả đúng với yêu cầu bài toán.", "Kiểm thử không cần thiết nếu chương trình chạy đúng ở lần đầu tiên.", "Kiểm thử chỉ cần thiết khi chương trình đã hoàn thành 100%."], answer: "Kiểm thử giúp xác định lỗi và điều chỉnh chương trình để đảm bảo kết quả đúng với yêu cầu bài toán." },
+                    { type: "multiple-choice", topic: "Lập trình", question: "Tại sao việc xác định cách tổ chức dữ liệu là một phần quan trọng trong bước tìm thuật toán?", options: ["Để làm cho chương trình nhanh hơn mà không cần tính toán.", "Để chọn được ngôn ngữ lập trình thích hợp cho bài toán.", "Để đảm bảo rằng thuật toán có thể hoạt động trên các cấu trúc dữ liệu phù hợp.", "Để giải quyết bài toán mà không cần kiểm thử chương trình."], answer: "Để đảm bảo rằng thuật toán có thể hoạt động trên các cấu trúc dữ liệu phù hợp." },
+                    { type: "multiple-choice", topic: "GIMP", question: "Phương án nào sau đây là vai trò của phần mềm GIMP trong việc thiết kế đồ họa?", options: ["Quản lý các tệp ảnh và lưu trữ chúng", "Cung cấp các công cụ thiết kế đồ họa như tạo văn bản, tô màu, ghép ảnh", "Tạo ra các phần mềm di động", "Hỗ trợ chỉnh sửa video"], answer: "Cung cấp các công cụ thiết kế đồ họa như tạo văn bản, tô màu, ghép ảnh" },
+                    { type: "multiple-choice", topic: "GIMP", question: "Trong GIMP, nếu một điểm ảnh có giá trị kênh alpha là 0 thì điều này có nghĩa gì sau đây?", options: ["Điểm ảnh đó có màu đen.", "Điểm ảnh đó có màu trắng.", "Điểm ảnh đó không hiển thị.", "Điểm ảnh đó hiển thị mờ."], answer: "Điểm ảnh đó không hiển thị." }
+                ]
+            },
+            {
+                part: "II. PHẦN TRẮC NGHIỆM ĐÚNG SAI",
+                instruction: "Từ câu 13 đến câu 16, mỗi câu hỏi có 4 phương án, học sinh chọn đúng hoặc sai cho từng phương án.",
+                questions: [
+                    { type: "true-false", topic: "Thư viện Python", question: "Trong một giờ học lập trình Python, thầy giáo giới thiệu cho các bạn học sinh lớp 10A về thư viện hàm có sẵn. Muốn sử dụng các hàm này chỉ cần kết nối hàm hoặc thư viện chứa hàm với chương trình, gọi đến hàm và truyền vào giá trị cho các tham số trong hàm. Các bạn học sinh sau khi nghe phân tích của thầy đã đưa ra một số nhận xét sau:", options: [{ text: "Trong Python, thư viện là một tập hợp gồm một số hàm đã được xây dựng sẵn.", answer: true }, { text: "Các hàm có sẵn trong Python được sử dụng luôn trong chương trình, không cần kết nối hàm hay thư viện chứa hàm với chương trình.", answer: false }, { text: "Khi thực hiện lời gọi hàm, bất kể hàm nào cũng cần truyền vào giá trị cho tham số để hàm thực hiện.", answer: false }, { text: "Python hỗ trợ nhiều hàm có sẵn giúp cho người lập trình viết chương trình nhanh gọn, không cần phải xây dựng các đoạn lệnh dài và phức tạp.", answer: true }] },
+                    { type: "true-false", topic: "Sắp xếp danh sách", question: "Một nhóm học sinh đang thực hiện bài tập sắp xếp danh sách A các điểm số của mình trong Python. Sau khi nhập các điểm số vào danh sách, nhóm học sinh muốn sắp xếp các điểm số theo thứ tự tăng dần. Các bạn học sinh đã đưa ra các nhận xét sau:", options: [{ text: "Hàm A.sort() chỉ sắp xếp danh sách theo thứ tự tăng dần.", answer: false }, { text: "Hàm A.sort() chỉ có thể được sử dụng với các danh sách chứa các phần tử cùng kiểu dữ liệu.", answer: false }, { text: "Khi thực hiện sắp xếp bằng hàm A.sort(), danh sách sẽ được thay đổi trực tiếp và không cần phải gán lại giá trị cho danh sách.", answer: true }, { text: "Để sắp xếp danh sách điểm theo thứ tự không giảm, có thể dùng lệnh A.sort().", answer: true }] },
+                    { type: "true-false", topic: "Nghề lập trình", question: "Một công ty công nghệ đang tổ chức hội thảo về nghề lập trình để tuyển dụng nhân sự trẻ. Sau khi tham gia hội thảo, số ứng viên đã có những nhận xét sau:", options: [{ text: "Công việc lập trình chỉ liên quan đến việc viết mã, không đòi hỏi sự kiên trì hay khả năng chịu áp lực.", answer: false }, { text: "Việc lập trình không đơn giản chỉ là viết mã, mà còn bao gồm gỡ lỗi, tối ưu hóa và kiểm thử phần mềm.", answer: true }, { text: "Lập trình viên thường phải làm việc với nhiều dự án cùng lúc và có thời hạn chặt chẽ.", answer: true }, { text: "Một lập trình viên giỏi không chỉ cần kỹ năng chuyên môn mà còn phải có khả năng giao tiếp để làm việc hiệu quả trong nhóm.", answer: true }] },
+                    { type: "true-false", topic: "GIMP", question: "An được giao nhiệm vụ thiết kế logo cho câu lạc bộ Tin học của trường bằng phần mềm GIMP. Logo gồm hình ảnh một chú chim cánh cụt đang đứng trên quả địa cầu. An đã vẽ hình chú chim cánh cụt trên một lớp và hình quả địa cầu trên một lớp khác. Khi An muốn di chuyển hình chú chim cánh cụt lên trên một chút so với quả địa cầu, bạn ấy nên thực hiện thao tác nào sau đây?", options: [{ text: "Công cụ Move Tool dùng để di chuyển các đối tượng được chọn.", answer: false }, { text: "Hình chú chim cánh cụt và hình quả địa cầu nằm trên hai lớp khác nhau, do đó có thể di chuyển độc lập.", answer: true }, { text: "Có thể di chuyển đồng thời cả hai hình ảnh cùng lúc sang vị trí khác so với ban đầu bằng cách nhóm hai lớp lại với nhau.", answer: false }, { text: "Muốn di chuyển hình chú chim cánh cụt lên trên một chút so với quả địa cầu, An không cần di chuyển lớp, chỉ cần di chuyển hình vẽ chú chim cánh cụt trên lớp ảnh tương ứng.", answer: false }] }
+                ]
+            }
+        ];
+        const QUIZ_TIME_SECONDS = 300; // 5 phút
+
+        // DOM Elements
+        const startScreen = document.getElementById('start-screen'), quizScreen = document.getElementById('quiz-screen'), resultScreen = document.getElementById('result-screen');
+        const classSelect = document.getElementById('class-select'), nameSelect = document.getElementById('name-select');
+        const startBtn = document.getElementById('start-btn'), infoError = document.getElementById('info-error');
+        const questionNumberEl = document.getElementById('question-number'), totalQuestionsEl = document.getElementById('total-questions'), timerEl = document.getElementById('timer');
+        const instructionBlock = document.getElementById('instruction-block'), partNameEl = document.getElementById('part-name'), partInstructionEl = document.getElementById('part-instruction');
+        const questionTextEl = document.getElementById('question-text'), optionsContainer = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const resultStudentNameEl = document.getElementById('result-student-name'), scoreEl = document.getElementById('score'), maxScoreEl = document.getElementById('max-score'), timeTakenEl = document.getElementById('time-taken');
+        const reviewContainer = document.getElementById('review-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const copyBtn = document.getElementById('copy-btn'), copySuccess = document.getElementById('copy-success');
+        const endQuizBtn = document.getElementById('end-quiz-btn');
+
+        // State
+        let currentQuestionIndex = 0, score = 0, timeRemaining = QUIZ_TIME_SECONDS;
+        let userAnswers = [], timerInterval;
+        let selectedStudent = {}; 
+        let flattenedShuffledQuiz = [];
+        let completedStudents = []; // NEW: Array to track completed students
+
+        // --- Login Screen Logic ---
+        function populateClassSelect() {
+            const classNames = Object.keys(studentList);
+            classSelect.innerHTML = '<option value="">-- Vui lòng chọn lớp --</option>'; // Clear previous options
+            classNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                classSelect.appendChild(option);
+            });
+        }
+
+        function handleClassChange() {
+            const selectedClass = classSelect.value;
+            nameSelect.innerHTML = '<option value="">-- Chọn tên của bạn --</option>'; 
+            startBtn.disabled = true;
+
+            if (selectedClass) {
+                nameSelect.disabled = false;
+                const students = studentList[selectedClass];
+                students.forEach(student => {
+                    // NEW: Check if student has already completed the quiz
+                    const hasCompleted = completedStudents.some(s => s.stt === student.stt && s.className === selectedClass);
+                    if (!hasCompleted) {
+                        const option = document.createElement('option');
+                        option.value = student.stt;
+                        option.textContent = `${student.stt}. ${student.name}`;
+                        nameSelect.appendChild(option);
+                    }
+                });
+            } else {
+                nameSelect.disabled = true;
+            }
+        }
+
+        function handleNameChange() {
+            if (classSelect.value && nameSelect.value) {
+                startBtn.disabled = false;
+            } else {
+                startBtn.disabled = true;
+            }
+        }
+
+        // --- Main Functions ---
+        function startQuiz() {
+            const className = classSelect.value;
+            const studentStt = parseInt(nameSelect.value);
+
+            if (!className || !studentStt) {
+                infoError.classList.remove("hidden");
+                return;
+            }
+            infoError.classList.add("hidden");
+            
+            selectedStudent = studentList[className].find(s => s.stt === studentStt);
+
+            startScreen.classList.add("hidden");
+            quizScreen.classList.remove("hidden");
+            resultScreen.classList.add("hidden");
+            
+            const quizCopy = JSON.parse(JSON.stringify(fullQuizData));
+            flattenedShuffledQuiz = [];
+            quizCopy.forEach(part => {
+                shuffleArray(part.questions); 
+                part.questions.forEach(q => {
+                    shuffleArray(q.options); 
+                    q.partName = part.part;
+                    q.partInstruction = part.instruction;
+                });
+                flattenedShuffledQuiz.push(...part.questions);
+            });
+
+            currentQuestionIndex = 0;
+            score = 0;
+            timeRemaining = QUIZ_TIME_SECONDS;
+            userAnswers = flattenedShuffledQuiz.map(q => q.type === 'multiple-choice' ? null : new Array(q.options.length).fill(null));
+            totalQuestionsEl.textContent = flattenedShuffledQuiz.length;
+            
+            showQuestion();
+            startTimer();
+        }
+        
+        // --- ALL HELPER FUNCTIONS ---
+        
+        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+                const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+                timerEl.textContent = `${minutes}:${seconds}`;
+                if (timeRemaining <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function endQuiz() {
+            clearInterval(timerInterval);
+            calculateScore();
+            // NEW: Add student to completed list
+            completedStudents.push({ stt: selectedStudent.stt, className: classSelect.value });
+            showResults();
+        }
+
+        function showQuestion(){
+            const e=flattenedShuffledQuiz[currentQuestionIndex];
+            const t=0===currentQuestionIndex||flattenedShuffledQuiz[currentQuestionIndex-1].partName!==e.partName;
+            t?(partNameEl.textContent=e.partName,partInstructionEl.textContent=e.partInstruction,instructionBlock.classList.remove("hidden")):instructionBlock.classList.add("hidden");
+            questionNumberEl.textContent=currentQuestionIndex+1;
+            questionTextEl.textContent=`Câu ${currentQuestionIndex+1}: ${e.question}`;
+            optionsContainer.innerHTML="";
+            "multiple-choice"===e.type?renderMultipleChoice(e):"true-false"===e.type&&renderTrueFalse(e);
+            submitBtn.textContent=currentQuestionIndex===flattenedShuffledQuiz.length-1?"Nộp bài và xem kết quả":"Tiếp theo";
+            submitBtn.disabled = true; // NEW: Disable button by default
+        }
+
+        function renderMultipleChoice(e){e.options.forEach((t,n)=>{const o=document.createElement("button"),s=String.fromCharCode(65+n)+". ";o.textContent=s+t,o.classList.add("w-full","text-left","p-4","border","border-gray-300","rounded-lg","hover:bg-gray-100","transition-colors","duration-200","quiz-option"),o.onclick=()=>selectMultipleChoiceOption(t,o),userAnswers[currentQuestionIndex]===t&&o.classList.add("selected"),optionsContainer.appendChild(o)})}
+        function renderTrueFalse(e){e.options.forEach((t,n)=>{const o=document.createElement("div");o.className="p-4 border border-gray-200 rounded-lg flex justify-between items-center";const s=document.createElement("p");s.className="flex-grow mr-4";const i=String.fromCharCode(97+n)+") ";s.textContent=i+t.text;const a=document.createElement("div");a.className="flex space-x-2 flex-shrink-0";const r=document.createElement("button");r.textContent="Đúng",r.className="tf-btn px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 bg-green-100 text-green-800 hover:bg-green-200",r.onclick=()=>selectTrueFalseOption(n,!0,r,l);const l=document.createElement("button");l.textContent="Sai",l.className="tf-btn px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 bg-red-100 text-red-800 hover:bg-red-200",l.onclick=()=>selectTrueFalseOption(n,!1,r,l),!0===userAnswers[currentQuestionIndex][n]?r.classList.add("selected"):!1===userAnswers[currentQuestionIndex][n]&&l.classList.add("selected"),a.appendChild(r),a.appendChild(l),o.appendChild(s),o.appendChild(a),optionsContainer.appendChild(o)})}
+        
+        function selectMultipleChoiceOption(e,t){
+            userAnswers[currentQuestionIndex]=e;
+            document.querySelectorAll(".quiz-option").forEach(e=>e.classList.remove("selected"));
+            t.classList.add("selected");
+            submitBtn.disabled = false; // NEW: Enable button
+        }
+
+        function selectTrueFalseOption(e,t,n,o){
+            userAnswers[currentQuestionIndex][e]=t;
+            n.classList.remove("selected");
+            o.classList.remove("selected");
+            !0===t?n.classList.add("selected"):o.classList.add("selected");
+            // NEW: Enable button only if all sub-questions are answered
+            if (userAnswers[currentQuestionIndex].every(ans => ans !== null)) {
+                submitBtn.disabled = false;
+            }
+        }
+
+        function handleSubmission(){currentQuestionIndex<flattenedShuffledQuiz.length-1?(currentQuestionIndex++,showQuestion()):endQuiz()}
+        function calculateScore(){score=0,flattenedShuffledQuiz.forEach((e,t)=>{if("multiple-choice"===e.type)userAnswers[t]===e.answer&&(score+=.25);else if("true-false"===e.type){let n=0;e.options.forEach((e,o)=>{userAnswers[t][o]===e.answer&&n++}),1===n?score+=.1:2===n?score+=.25:3===n?score+=.5:4===n&&(score+=1)}})}
+        function calculateMaxScore(){let e=0;return fullQuizData.forEach(t=>{t.questions.forEach(t=>{"multiple-choice"===t.type?e+=.25:"true-false"===t.type&&(e+=1)})}),e}
+        
+        function showResults(){
+            quizScreen.classList.add("hidden");
+            resultScreen.classList.remove("hidden");
+            resultStudentNameEl.textContent=`${selectedStudent.stt}. ${selectedStudent.name}`;
+            const e=calculateMaxScore();
+            scoreEl.textContent=score.toFixed(2);
+            maxScoreEl.textContent=e.toFixed(2);
+            const t=QUIZ_TIME_SECONDS-timeRemaining;
+            const n=Math.floor(t/60);
+            const o=t%60;
+            timeTakenEl.textContent=`${n} phút ${o} giây`;
+            displayReview();
+            generatePersonalizedFeedback();
+        }
+
+        function displayReview(){reviewContainer.innerHTML="",flattenedShuffledQuiz.forEach((e,t)=>{const n=document.createElement("div");n.className="p-4 rounded-lg border";let o=`<p class="font-bold mb-3">Câu ${t+1}: ${e.question}</p><div class="space-y-2">`,s=!1;if("multiple-choice"===e.type){s=userAnswers[t]===e.answer,e.options.forEach((n,i)=>{const a=String.fromCharCode(65+i)+". ";let r="review-option p-3 rounded-md border ";n===e.answer?r+="correct":n===userAnswers[t]&&!s&&(r+="incorrect"),o+=`<div class="${r}">${a}${n}</div>`})}else if("true-false"===e.type){const i=userAnswers[t];let a=0;e.options.forEach((e,t)=>{i[t]===e.answer&&a++}),s=a===e.options.length,e.options.forEach((e,t)=>{const n=String.fromCharCode(97+t)+") ",s=i[t],a=e.answer,r=s===a;let l=null===s?"Chưa chọn":s?"Đúng":"Sai";o+=`<div class="p-3 rounded-md ${r?"bg-green-50":"bg-red-50"}"><p>${n}${e.text}</p><p class="text-xs mt-1">Bạn chọn: <span class="font-bold ${r?"text-green-700":"text-red-700"}">${l}</span>. Đáp án: <span class="font-bold text-green-700">${a?"Đúng":"Sai"}</span></p></div>`})}o+="</div>",n.innerHTML=o,n.classList.add(s?"border-green-300":"border-red-300"),reviewContainer.appendChild(n)})}
+        
+        function returnToLogin(){
+            startScreen.classList.remove("hidden");
+            quizScreen.classList.add("hidden");
+            resultScreen.classList.add("hidden");
+            
+            // Repopulate class list, which will trigger repopulating the name list with filtered students
+            populateClassSelect(); 
+            classSelect.value = "";
+            nameSelect.innerHTML = '<option value="">-- Chờ chọn lớp --</option>';
+            nameSelect.disabled = true;
+            startBtn.disabled = true;
+        }
+        
+        function generatePersonalizedFeedback() {
+            const topicStats = {};
+
+            flattenedShuffledQuiz.forEach((question, index) => {
+                const topic = question.topic || 'Chung';
+                if (!topicStats[topic]) {
+                    topicStats[topic] = { correct: 0, total: 0 };
+                }
+                topicStats[topic].total++;
+
+                let isCorrect = false;
+                if (question.type === 'multiple-choice') {
+                    if (userAnswers[index] === question.answer) isCorrect = true;
+                } else if (question.type === 'true-false') {
+                    const userChoices = userAnswers[index];
+                    if (userChoices.every((choice, i) => choice === question.options[i].answer)) isCorrect = true;
+                }
+                if (isCorrect) topicStats[topic].correct++;
+            });
+
+            const strengths = [], weaknesses = [], needsWork = [];
+            for (const topic in topicStats) {
+                const percentage = (topicStats[topic].correct / topicStats[topic].total) * 100;
+                if (percentage >= 75) strengths.push(topic);
+                else if (percentage < 50) weaknesses.push(topic);
+                else needsWork.push(topic);
+            }
+
+            let feedbackHTML = '';
+            if (strengths.length > 0) {
+                feedbackHTML += `<div class="p-3 rounded-md bg-green-50 border border-green-200">
+                    <h4 class="font-bold text-green-800">✅ Ưu điểm</h4>
+                    <p class="mt-1 text-green-700">Chúc mừng! Bạn đã thể hiện sự am hiểu sâu sắc về các chủ đề: <strong>${strengths.join(', ')}</strong>. Hãy tiếp tục phát huy nhé.</p>
+                </div>`;
+            }
+             if (needsWork.length > 0) {
+                feedbackHTML += `<div class="p-3 rounded-md bg-yellow-50 border border-yellow-200">
+                    <h4 class="font-bold text-yellow-800">⚠️ Cần củng cố</h4>
+                    <p class="mt-1 text-yellow-700">Bạn đã có kiến thức nền tảng nhưng cần củng cố thêm ở các chủ đề: <strong>${needsWork.join(', ')}</strong>. Hãy ôn tập lại để nắm chắc hơn.</p>
+                </div>`;
+            }
+            if (weaknesses.length > 0) {
+                 feedbackHTML += `<div class="p-3 rounded-md bg-red-50 border border-red-200">
+                    <h4 class="font-bold text-red-800">❌ Nhược điểm</h4>
+                    <p class="mt-1 text-red-700">Bạn cần tập trung ôn luyện kỹ hơn các chủ đề sau đây vì kết quả chưa tốt: <strong>${weaknesses.join(', ')}</strong>.</p>
+                </div>`;
+            }
+            feedbackHTML += `<div class="p-3 rounded-md bg-blue-50 border border-blue-200">
+                <h4 class="font-bold text-blue-800">📚 Gợi ý lộ trình học tập</h4>
+                <p class="mt-1 text-blue-700">Để cải thiện kết quả, bạn nên ưu tiên xem lại các phần kiến thức ở mục "Nhược điểm" và "Cần củng cố". Hãy thử làm lại các câu đã sai và tìm thêm các bài tập tương tự để thực hành. Việc luyện tập thường xuyên là chìa khóa để thành công!</p>
+            </div>`;
+
+            feedbackContainer.innerHTML = feedbackHTML;
+        }
+
+        function getResultSummary() {
+            const maxScore = calculateMaxScore();
+            const timeText = timeTakenEl.textContent;
+            return `${selectedStudent.name}\tLớp: ${classSelect.value}\t${timeText}\t${score.toFixed(2)} / ${maxScore.toFixed(2)}`;
+        }
+
+        function copyResult() {
+            const summary = getResultSummary();
+            const textArea = document.createElement("textarea");
+            // Prevent scrolling
+            textArea.style.position = 'fixed';
+            textArea.style.top = '-9999px';
+            textArea.style.left = '-9999px';
+            
+            textArea.value = summary;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                copySuccess.classList.remove('hidden');
+                setTimeout(() => copySuccess.classList.add('hidden'), 3000);
+            } catch (err) {
+                console.error('Không thể sao chép', err);
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        // Event Listeners
+        classSelect.addEventListener('change', handleClassChange);
+        nameSelect.addEventListener('change', handleNameChange);
+        startBtn.addEventListener('click', startQuiz);
+        submitBtn.addEventListener('click', handleSubmission);
+        copyBtn.addEventListener('click', copyResult);
+        endQuizBtn.addEventListener('click', returnToLogin);
+
+        // Initial Load
+        populateClassSelect();
+    </script>
+</body>
+</html>
