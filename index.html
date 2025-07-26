@@ -3,501 +3,601 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bài Kiểm Tra Vui Nhộn</title>
+    <!-- FIX: Đổi tên ứng dụng -->
+    <title>Kiểm tra học kì I - Lớp 10</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Quicksand', sans-serif;
-            background-color: #EFF6FF; /* blue-50 */
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2360A5FA' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #E0F7FA; /* Xanh da trời rất nhạt */
+            color: #424242; /* Xám đậm */
+            position: relative;
+            overflow-x: hidden;
         }
-        .quiz-option {
-            -webkit-appearance: none;
-            appearance: none;
+        .safe-area { width: 100%; max-width: 85vw; margin-left: auto; margin-right: auto; }
+        @media (max-width: 768px) { .safe-area { max-width: 95vw; } }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .screen-transition { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Dropdown */
+        .custom-select-options {
+            transition: opacity 0.2s, transform 0.2s;
         }
-        .quiz-option.selected { 
-            background-color: #3B82F6; /* blue-500 */
-            color: white; 
-            border-color: #2563EB; /* blue-600 */
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        .review-option.correct {
-            background-color: #DCFCE7; /* green-100 */
-            border-color: #22C55E; /* green-500 */
-            color: #15803D; /* green-800 */
-        }
-        .review-option.incorrect {
-            background-color: #FEE2E2; /* red-100 */
-            border-color: #EF4444; /* red-500 */
-            color: #B91C1C; /* red-800 */
+
+        .option-card { transition: all 0.2s ease-in-out; }
+        .option-card.selected { 
+            background-color: #7986CB !important; /* Xanh indigo nhẹ nhàng */
+            color: white !important;
+            border-color: #7986CB !important; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 10px rgba(121, 134, 203, 0.4);
         }
         .tf-btn.selected { 
-            transform: scale(1.1); 
-            box-shadow: 0 0 0 3px #3B82F6; /* blue-500 */
+            outline: 2px solid #7986CB;
+            outline-offset: 2px;
         }
-        button:disabled { 
-            background-color: #d1d5db; /* gray-400 */
-            cursor: not-allowed; 
-        }
-        .main-container {
-            background-color: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+
+        /* Review Screen Styles */
+        .review-option.correct { background-color: #E8F5E9; border-color: #4CAF50; }
+        .review-option.incorrect { background-color: #FFEBEE; border-color: #F44336; }
+        .review-option.missed-correct { background-color: #E8F5E9; border: 2px dashed #4CAF50; }
+        .review-tf-btn.correct { background-color: #4CAF50; color: white; }
+        .review-tf-btn.incorrect { background-color: #F44336; color: white; }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body>
 
-    <div id="app-container" class="main-container w-full max-w-2xl mx-auto rounded-3xl shadow-2xl shadow-blue-200 p-6 md:p-8 transition-all duration-500">
-        <!-- Start Screen -->
-        <div id="start-screen">
-            <div class="text-center mb-6">
-                <h1 class="text-2xl font-bold text-blue-800">KIỂM TRA HỌC KÌ I NĂM HỌC 2025 - 2026</h1>
-                <h2 class="text-xl font-semibold text-blue-700 mt-1">MÔN: TIN HỌC - LỚP: 10</h2>
-                <p class="text-base text-blue-600 mt-2">Thời gian làm bài: 5 phút</p>
+    <main class="w-full max-w-3xl mx-auto p-4 py-8">
+        <!-- Màn hình Đăng nhập -->
+        <div id="login-screen" class="screen active">
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 safe-area">
+                <div class="text-center mb-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">KIỂM TRA HỌC KÌ I NĂM HỌC 2025 – 2026</h1>
+                    <p class="text-base md:text-lg font-semibold text-gray-600 mt-2">MÔN: Tin học – LỚP: 10</p>
+                    <p class="text-sm md:text-base text-[#5C6BC0] font-medium mt-2">Thời gian làm bài: 5 phút</p>
+                </div>
+                <div class="space-y-6">
+                    <p class="text-center text-gray-700">Vui lòng chọn đúng thông tin của em để bắt đầu.</p>
+                    
+                    <!-- Custom Select Lớp -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">1. Chọn lớp</label>
+                        <div class="relative">
+                            <button type="button" id="class-select-button" class="w-full text-left px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7986CB] transition flex justify-between items-center">
+                                <span class="text-gray-500">-- Vui lòng chọn lớp --</span>
+                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <div id="class-select-options" class="custom-select-options absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg hidden opacity-0 transform scale-95"></div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Select Tên -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">2. Chọn tên của em</label>
+                        <div class="relative">
+                             <button type="button" id="student-select-button" class="w-full text-left px-4 py-3 bg-gray-200 border border-gray-300 rounded-xl transition flex justify-between items-center cursor-not-allowed" disabled>
+                                <span class="text-gray-500">-- Vui lòng chọn tên --</span>
+                                <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            </button>
+                            <div id="student-select-options" class="custom-select-options absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-xl shadow-lg hidden opacity-0 transform scale-95"></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button id="start-button" class="w-full bg-[#7986CB] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#5C6BC0] focus:outline-none focus:ring-4 focus:ring-[#C5CAE9] transition-all disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none shadow-lg shadow-indigo-500/30" disabled>Bắt đầu làm bài</button>
+                    </div>
+                </div>
             </div>
-            <p class="text-center text-gray-600 mb-6 border-t border-blue-200 pt-6">Vui lòng chọn đúng thông tin của bạn để bắt đầu.</p>
-            <div class="space-y-4">
+        </div>
+
+        <!-- Màn hình Làm bài -->
+        <div id="quiz-screen" class="screen">
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 safe-area">
+                <div class="flex justify-between items-center border-b border-gray-200 pb-4 mb-6">
+                    <span id="question-counter" class="font-bold text-lg text-[#3F51B5]"></span>
+                    <div class="flex items-center space-x-2 bg-red-100 text-red-700 font-bold px-4 py-2 rounded-full">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span id="timer">05:00</span>
+                    </div>
+                </div>
+                <div id="instruction-area" class="bg-indigo-50 p-4 rounded-lg mb-6 text-indigo-800 border border-indigo-200"></div>
+                <div id="question-area">
+                    <p id="question-text" class="text-lg font-semibold text-gray-800 mb-6"></p>
+                    <div id="options-container" class="space-y-3"></div>
+                </div>
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <button id="next-button" class="w-full bg-[#7986CB] text-white font-bold py-3 px-4 rounded-xl hover:bg-[#5C6BC0] focus:outline-none focus:ring-4 focus:ring-[#C5CAE9] transition-all disabled:bg-gray-400"></button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Màn hình Kết quả -->
+        <div id="result-screen" class="screen">
+            <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 safe-area screen-transition space-y-8">
+                <div class="text-center">
+                    <h2 class="text-4xl font-extrabold text-green-500">Hoàn thành!</h2>
+                    <p id="result-greeting" class="mt-2 text-lg text-gray-700"></p>
+                    <div class="mt-6 bg-gray-50 p-6 rounded-xl inline-block border border-gray-200">
+                        <p class="text-sm font-medium text-gray-500">Điểm số của bạn</p>
+                        <p id="final-score" class="text-5xl font-extrabold text-[#3F51B5] my-1"></p>
+                        <p id="time-taken" class="text-sm text-gray-600"></p>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button id="copy-button" class="bg-gray-700 text-white font-bold py-2 px-5 rounded-lg hover:bg-gray-800 transition-all duration-200 inline-block">Sao chép kết quả</button>
+                        <p id="copy-feedback" class="text-sm text-green-600 mt-2 opacity-0 transition-opacity">Đã sao chép thành công!</p>
+                    </div>
+                </div>
+                <div class="bg-indigo-50 p-5 rounded-xl border border-indigo-200">
+                    <h3 class="text-xl font-bold text-indigo-800 mb-3">Nhận xét bài làm</h3>
+                    <div id="feedback-content" class="text-indigo-900 space-y-4"></div>
+                </div>
                 <div>
-                    <label for="class-select" class="block text-sm font-bold text-gray-700 mb-2">1. Chọn Lớp:</label>
-                    <select id="class-select" class="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition">
-                        <option value="">-- Vui lòng chọn lớp --</option>
-                    </select>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Xem lại bài làm</h3>
+                    <div id="review-container" class="space-y-6"></div>
                 </div>
-                <div>
-                    <label for="name-select" class="block text-sm font-bold text-gray-700 mb-2">2. Chọn Tên của bạn:</label>
-                    <select id="name-select" class="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:ring-blue-500 focus:border-blue-500 transition" disabled>
-                        <option value="">-- Chờ chọn lớp --</option>
-                    </select>
+                <div class="text-center pt-6 border-t border-gray-200">
+                    <button id="end-button" class="bg-red-500 text-white font-bold py-3 px-8 rounded-xl hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-300 transition-all">Kết thúc</button>
                 </div>
-            </div>
-            <button id="start-btn" class="mt-8 w-full bg-blue-500 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg" disabled>Bắt đầu làm bài</button>
-            <p id="info-error" class="text-red-500 text-sm mt-2 text-center hidden">Vui lòng chọn đầy đủ thông tin.</p>
-        </div>
-
-        <!-- Quiz Screen -->
-        <div id="quiz-screen" class="hidden">
-             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-gray-800">Câu <span id="question-number"></span>/<span id="total-questions"></span></h2>
-                <div class="flex items-center space-x-2 bg-red-100 text-red-700 font-semibold px-4 py-2 rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span id="timer">05:00</span>
-                </div>
-            </div>
-            
-            <div id="instruction-block" class="hidden mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <h3 id="part-name" class="text-lg font-bold text-blue-800"></h3>
-                <p id="part-instruction" class="text-sm text-blue-700 mt-1"></p>
-            </div>
-
-            <div id="question-container" class="mb-6">
-                <p id="question-text" class="text-lg font-semibold text-gray-900 mb-5 whitespace-pre-wrap"></p>
-                <div id="options-container" class="space-y-4"></div>
-            </div>
-            <button id="submit-btn" class="w-full bg-blue-500 text-white font-bold py-4 px-4 rounded-xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg" disabled>Tiếp theo</button>
-        </div>
-
-        <!-- Result Screen -->
-        <div id="result-screen" class="hidden">
-             <div id="result-content">
-                <h1 class="text-4xl font-bold text-center text-green-600 mb-2">Hoàn thành!</h1>
-                <p class="text-center text-gray-600 mb-4">Đây là kết quả bài làm của bạn, <strong id="result-student-name" class="text-blue-600"></strong>.</p>
-                <div class="bg-blue-50 rounded-2xl p-6 mb-6 text-center">
-                    <p class="text-lg text-blue-800">Điểm số của bạn:</p>
-                    <p class="text-6xl font-extrabold text-blue-900 my-2"><span id="score"></span> / <span id="max-score"></span></p>
-                    <p class="text-blue-700">Thời gian làm bài: <span id="time-taken" class="font-medium"></span></p>
-                </div>
-             </div>
-             <div class="mt-6 pt-6 border-t border-blue-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Gửi kết quả cho giáo viên</h3>
-                <div class="grid grid-cols-1 gap-4">
-                    <button id="copy-btn" class="w-full bg-slate-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-slate-700 transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" /><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2H6zm1 4a1 1 0 100 2h6a1 1 0 100-2H7zm0 4a1 1 0 100 2h6a1 1 0 100-2H7z" /></svg>
-                        <span>Sao chép (Zalo, Messenger)</span>
-                    </button>
-                </div>
-                 <p id="copy-success" class="text-green-600 text-sm mt-3 text-center hidden">Đã sao chép thành công!</p>
-             </div>
-             <div id="review-section" class="mt-6 pt-6 border-t border-blue-200">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Xem lại bài làm</h3>
-                <div id="review-container" class="space-y-4"></div>
-            </div>
-            <div id="feedback-section" class="mt-6 pt-6 border-t border-blue-200">
-                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nhận xét</h3>
-                 <div id="feedback-container" class="text-sm space-y-4"></div>
-            </div>
-             <div class="mt-8 pt-6 border-t border-blue-200 text-center">
-                 <button id="end-quiz-btn" class="bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-600 transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center justify-center space-x-2">
-                    <span>Kết thúc</span>
-                </button>
             </div>
         </div>
-    </div>
+    </main>
 
-    <script type="module">
-        // The JavaScript logic remains the same as the previous correct version.
-        // All functionality is preserved.
-        const studentList = {
-            "10A1": [
-                { stt: 1, name: "Nguyễn Văn An" },
-                { stt: 2, name: "Phạm Minh Cường" },
-                { stt: 3, name: "Bùi Thị Hồng Thu" },
-                { stt: 4, name: "Nguyễn Tô Sơn" }
-            ],
-            "10A2": [
-                { stt: 1, name: "Hoàng Văn Giang" },
-                { stt: 2, name: "Vũ Thị Hương" },
-                { stt: 3, name: "Đỗ Văn Ích" },
-                { stt: 4, name: "Bùi Thị Kim" },
-                { stt: 5, name: "Trần Văn Long" }
-            ],
-            "10A3": [
-                { stt: 1, name: "Lý Thị Mai" },
-                { stt: 2, name: "Ngô Gia Nam" },
-                { stt: 3, name: "Dương Thị Oanh" },
-                { stt: 4, name: "Phan Văn Phúc" },
-                { stt: 5, name: "Hà Thị Quỳnh" }
-            ],
-            "10A4": [
-                { stt: 1, name: "Học sinh A4-1" },
-                { stt: 2, name: "Học sinh A4-2" }
-            ],
-            "10A5": [
-                { stt: 1, name: "Học sinh A5-1" },
-                { stt: 2, name: "Học sinh A5-2" }
-            ],
-            "10A6": [
-                { stt: 1, name: "Học sinh A6-1" },
-                { stt: 2, name: "Học sinh A6-2" }
-            ],
-            "10A7": [
-                { stt: 1, name: "Học sinh A7-1" },
-                { stt: 2, name: "Học sinh A7-2" }
+    <script>
+    // --- CSDL MÔ PHỎNG ---
+    const studentData = { "10A1": ["Nguyễn Văn A", "Trần Thị B", "Phạm Văn C", "Bùi Thị Hồng Thu", "Nguyễn Tô Sơn"], "10A2": ["Lê Thị D", "Hoàng Văn E", "Vũ Thị F"] };
+    const quizData = {
+        mc: [
+            { id: 1, topic: "Python: Vòng lặp", question: "Phương án nào dưới đây mô tả sự khác biệt giữa câu lệnh lặp for và while trong Python?", options: ["Câu lệnh for được sử dụng khi số lần lặp không xác định, còn while được sử dụng khi số lần lặp đã biết.", "Câu lệnh for được sử dụng khi biết số lần lặp và có thể lặp qua một dãy giá trị, trong khi while không biết trước số lần lặp, lặp khi điều kiện tiếp tục được thỏa mãn.", "Cả for và while đều dùng để lặp qua một dây giá trị xác định.", "Câu lệnh for không thể lặp vô hạn, trong khi while có thể."], answer: 1 },
+            { id: 2, topic: "Python: Hàm & Thư viện", question: "Khi gọi một hàm có tham số nhưng không gán giá trị mặc định cho tham số thì điều gì sẽ xảy ra dưới đây nếu không truyền đủ số lượng đối số cho tham số trong lời gọi hàm?", options: ["Python sẽ tự động gán giá trị None cho các tham số thiếu.", "Chương trình sẽ báo lỗi TypeError.", "Chương trình bỏ qua tham số thiếu và tiếp tục chạy.", "Python sẽ tự động điền giá trị mặc định 0."], answer: 1 },
+            { id: 3, topic: "Python: Hàm & Thư viện", question: "Phương án nào sau đây đúng khi nói về hàm abs() trong Python?", options: ["Hàm abs() trả về phần thực của một số phức.", "Hàm abs() trả về giá trị tuyệt đối của một số.", "Hàm abs() trả về giá trị âm của một số.", "Hàm abs() trả về phần nguyên của một số thực."], answer: 1 },
+            { id: 4, topic: "Python: Chuỗi & Danh sách", question: "Khi sử dụng hàm len(s) với một xâu kí tự s, kết quả trả về là gì?", options: ["Số kí tự trong xâu, bao gồm cả dấu cách", "Số lượng từ có trong xâu", "Chỉ tính các kí tự chữ cái trong xâu", "Độ dài tối đa mà xâu có thể chứa"], answer: 0 },
+            { id: 5, topic: "Python: Chuỗi & Danh sách", question: "Cho đoạn lệnh Python sau:\ny = \"abcdef\"\nprint(y[:4])\nKết quả nào sau đây là đúng khi thực hiện đoạn lệnh trên?", options: ["abcd", "bcde", "abc", "abcdef"], answer: 0 },
+            { id: 6, topic: "Python: Chuỗi & Danh sách", question: "Phương án nào sau đây mô tả đúng cách truy cập phần tử trong danh sách A tại vị trí chỉ số 2?", options: ["A<2>", "A(2)", "A{2}", "A[2]"], answer: 3 },
+            { id: 7, topic: "Python: Chuỗi & Danh sách", question: "Cho danh sách sau:\nA = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\", \"fig\", \"grape\"]\nPhương án nào sau đây nêu đúng giá trị của phần tử A[5]?", options: ["\"elderberry\"", "\"grape\"", "\"fig\"", "\"date\""], answer: 2 },
+            { id: 8, topic: "Lập trình: Khái niệm & Gỡ lỗi", question: "Phương án nào sau đây điền từ đúng vào chỗ trống:\n\"... là một lỗi khi chương trình không tuân theo các quy định ngữ pháp của ngôn ngữ lập trình\"?", options: ["Lỗi ngữ nghĩa.", "Lỗi cú pháp.", "Lỗi logic.", "Lỗi ngoại lệ."], answer: 1 },
+            { id: 9, topic: "Lập trình: Khái niệm & Gỡ lỗi", question: "Phát biểu nào sau đây giải thích tại sao việc kiểm thử chương trình lại quan trọng trong quá trình lập trình?", options: ["Kiểm thử giúp đảm bảo rằng chương trình đã hoàn chỉnh và có thể chạy ngay lập tức mà không cần thay đổi gì.", "Kiểm thử giúp xác định lỗi và điều chỉnh chương trình để đảm bảo kết quả đúng với yêu cầu bài toán.", "Kiểm thử không cần thiết nếu chương trình chạy đúng ở lần đầu tiên.", "Kiểm thử chỉ cần thiết khi chương trình đã hoàn thành 100%."], answer: 1 },
+            { id: 10, topic: "Lập trình: Khái niệm & Gỡ lỗi", question: "Tại sao việc xác định cách tổ chức dữ liệu là một phần quan trọng trong bước tìm thuật toán?", options: ["Để làm cho chương trình nhanh hơn mà không cần tính toán.", "Để chọn được ngôn ngữ lập trình thích hợp cho bài toán.", "Để đảm bảo rằng thuật toán có thể hoạt động trên các cấu trúc dữ liệu phù hợp.", "Để giải quyết bài toán mà không cần kiểm thử chương trình."], answer: 2 },
+            { id: 11, topic: "Thiết kế đồ họa: GIMP", question: "Phương án nào sau đây là vai trò của phần mềm GIMP trong việc thiết kế đồ họa?", options: ["Quản lý các tệp ảnh và lưu trữ chúng", "Cung cấp các công cụ thiết kế đồ họa như tạo văn bản, tô màu, ghép ảnh", "Tạo ra các phần mềm di động", "Hỗ trợ chỉnh sửa video"], answer: 1 },
+            { id: 12, topic: "Thiết kế đồ họa: GIMP", question: "Trong GIMP, nếu một điểm ảnh có giá trị kênh alpha là 0 thì điều này có nghĩa gì sau đây?", options: ["Điểm ảnh đó có màu đen.", "Điểm ảnh đó có màu trắng.", "Điểm ảnh đó không hiển thị.", "Điểm ảnh đó hiển thị mở."], answer: 2 }
+        ],
+        tf: [
+            { id: 13, topic: "Python: Hàm & Thư viện", question: "Trong một giờ học lập trình Python, thầy giáo giới thiệu cho các bạn học sinh lớp 10A về thư viện hàm có sẵn. Muốn sử dụng các hàm này chỉ cần kết nối hàm hoặc thư viện chứa hàm với chương trình, gọi đến hàm và truyền vào giá trị cho các tham số trong hàm. Các bạn học sinh sau khi nghe phân tích của thầy đã đưa ra một số nhận xét sau:", options: [{ text: "Trong Python, thư viện là một tập hợp gồm một số hàm đã được xây dựng sẵn.", answer: "Đ" }, { text: "Các hàm có sẵn trong Python được sử dụng luôn trong chương trình, không cần kết nối hàm hay thư viện chứa hàm với chương trình.", answer: "S" }, { text: "Khi thực hiện lời gọi hàm, bất kể hàm nào cũng cần truyền vào giá trị cho tham số để hàm thực hiện.", answer: "S" }, { text: "Python hỗ trợ nhiều hàm có sẵn giúp cho người lập trình viết chương trình nhanh gọn, không cần phải xây dựng các đoạn lệnh dài và phức tạp.", answer: "Đ" }] },
+            { id: 14, topic: "Python: Chuỗi & Danh sách", question: "Một nhóm học sinh đang thực hiện bài tập sắp xếp danh sách A các điểm số của mình trong Python. Sau khi nhập các điểm số vào danh sách, nhóm học sinh muốn sắp xếp các điểm số theo thứ tự tăng dần. Các bạn học sinh đã đưa ra các nhận xét sau:", options: [{ text: "Hàm A.sort() chỉ sắp xếp danh sách theo thứ tự tăng dần.", answer: "S" }, { text: "Hàm A.sort() chỉ có thể được sử dụng với các danh sách chứa các phần tử cùng kiểu dữ liệu.", answer: "S" }, { text: "Khi thực hiện sắp xếp bằng hàm A.sort(), danh sách sẽ được thay đổi trực tiếp và không cần phải gán lại giá trị cho danh sách.", answer: "Đ" }, { text: "Để sắp xếp danh sách điểm theo thứ tự không giảm, có thể dùng lệnh A.sort().", answer: "Đ" }] },
+            { id: 15, topic: "Lập trình: Kỹ năng nghề nghiệp", question: "Một công ty công nghệ đang tổ chức hội thảo về nghề lập trình để tuyển dụng nhân sự trẻ. Sau khi tham gia hội thảo, số ứng viên đã có những nhận xét sau:", options: [{ text: "Công việc lập trình chỉ liên quan đến việc viết mã, không đòi hỏi sự kiên trì hay khả năng chịu áp lực.", answer: "S" }, { text: "Việc lập trình không đơn giản chỉ là viết mã, mà còn bao gồm gỡ lỗi, tối ưu hóa và kiểm thử phần mềm.", answer: "Đ" }, { text: "Lập trình viên thường phải làm việc với nhiều dự án cùng lúc và có thời hạn chặt chẽ.", answer: "Đ" }, { text: "Một lập trình viên giỏi không chỉ cần kỹ năng chuyên môn mà còn phải có khả năng giao tiếp để làm việc hiệu quả trong nhóm.", answer: "Đ" }] },
+            { id: 16, topic: "Thiết kế đồ họa: GIMP", question: "An được giao nhiệm vụ thiết kế logo cho câu lạc bộ Tin học của trường bằng phần mềm GIMP. Logo gồm hình ảnh một chú chim cánh cụt đang đứng trên quả địa cầu. An đã vẽ hình chú chim cánh cụt trên một lớp và hình quả địa cầu trên một lớp khác. Khi An muốn di chuyển hình chú chim cánh cụt lên trên một chút so với quả địa cầu, bạn ấy nên thực hiện thao tác nào sau đây?", options: [{ text: "Công cụ Move Tool dùng để di chuyển các đối tượng được chọn.", answer: "S" }, { text: "Hình chú chim cánh cụt và hình quả địa cầu nằm trên hai lớp khác nhau, do đó có thể di chuyển độc lập.", answer: "Đ" }, { text: "Có thể di chuyển đồng thời cả hai hình ảnh cùng lúc sang vị trí khác so với ban đầu bằng cách nhóm hai lớp lại với nhau.", answer: "S" }, { text: "Muốn di chuyển hình chú chim cánh cụt lên trên một chút so với quả địa cầu, An không cần di chuyển lớp, chỉ cần di chuyển hình vẽ chú chim cánh cụt trên lớp ảnh tương ứng.", answer: "S" }] }
+        ]
+    };
+
+    const resourceMap = {
+        "Python: Vòng lặp": {
+            advice: "Em cần phân biệt rõ khi nào dùng `for` (khi biết trước số lần lặp hoặc lặp qua một danh sách) và khi nào dùng `while` (khi lặp theo một điều kiện chưa biết trước).",
+            links: [
+                { title: "Bài 13: Vòng lặp While, For (Tiếng Việt)", url: "https://howkteam.com/lessons/cau-truc-lap-trong-python-while-for-break-continue-pass" },
+                { title: "Python Loops (English)", url: "https://www.w3schools.com/python/python_while_loops.asp" },
+                { title: "Video: Vòng lặp For & While (YouTube)", url: "https://www.youtube.com/watch?v=p33xCAt3vsc" }
             ]
-        };
-
-        const fullQuizData = [
-            {
-                part: "I. PHẦN TRẮC NGHIỆM NHIỀU PHƯƠNG ÁN LỰA CHỌN",
-                instruction: "Từ câu 1 đến câu 12, mỗi câu hỏi học sinh chỉ chọn một phương án.",
-                questions: [
-                    { type: "multiple-choice", topic: "Lệnh lặp", question: "Phương án nào dưới đây mô tả sự khác biệt giữa câu lệnh lặp for và while trong Python?", options: ["Câu lệnh for được sử dụng khi số lần lặp không xác định, còn while được sử dụng khi số lần lặp đã biết.", "Câu lệnh for được sử dụng khi biết số lần lặp và có thể lặp qua một dãy giá trị, trong khi while không biết trước số lần lặp, lặp khi điều kiện tiếp tục được thỏa mãn.", "Cả for và while đều dùng để lặp qua một dây giá trị xác định.", "Câu lệnh for không thể lặp vô hạn, trong khi while có thể."], answer: "Câu lệnh for được sử dụng khi biết số lần lặp và có thể lặp qua một dãy giá trị, trong khi while không biết trước số lần lặp, lặp khi điều kiện tiếp tục được thỏa mãn." },
-                    { type: "multiple-choice", topic: "Hàm", question: "Khi gọi một hàm có tham số nhưng không gán giá trị mặc định cho tham số thì điều gì sẽ xảy ra dưới đây nếu không truyền đủ số lượng đối số cho tham số trong lời gọi hàm?", options: ["Python sẽ tự động gán giá trị None cho các tham số thiếu.", "Chương trình sẽ báo lỗi TypeError.", "Chương trình bỏ qua tham số thiếu và tiếp tục chạy.", "Python sẽ tự động điền giá trị mặc định 0."], answer: "Chương trình sẽ báo lỗi TypeError." },
-                    { type: "multiple-choice", topic: "Hàm", question: "Phương án nào sau đây đúng khi nói về hàm abs() trong Python?", options: ["Hàm abs() trả về phần thực của một số phức.", "Hàm abs() trả về giá trị tuyệt đối của một số.", "Hàm abs() trả về giá trị âm của một số.", "Hàm abs() trả về phần nguyên của một số thực."], answer: "Hàm abs() trả về giá trị tuyệt đối của một số." },
-                    { type: "multiple-choice", topic: "Xâu ký tự", question: "Khi sử dụng hàm len(s) với một xâu kí tự s, kết quả trả về là gì?", options: ["Số kí tự trong xâu, bao gồm cả dấu cách", "Số lượng từ có trong xâu", "Chỉ tính các kí tự chữ cái trong xâu", "Độ dài tối đa mà xâu có thể chứa"], answer: "Số kí tự trong xâu, bao gồm cả dấu cách" },
-                    { type: "multiple-choice", topic: "Xâu ký tự", question: "Cho đoạn lệnh Python sau:\ny = \"abcdef\"\nprint(y[:4])\nKết quả nào sau đây là đúng khi thực hiện đoạn lệnh trên?", options: ["abcd", "bcde", "abc", "abcdef"], answer: "abcd" },
-                    { type: "multiple-choice", topic: "Danh sách", question: "Phương án nào sau đây mô tả đúng cách truy cập phần tử trong danh sách A tại vị trí chỉ số 2?", options: ["A<2>", "A(2)", "A{2}", "A[2]"], answer: "A[2]" },
-                    { type: "multiple-choice", topic: "Danh sách", question: "Cho danh sách sau: A = [\"apple\", \"banana\", \"cherry\", \"date\", \"elderberry\", \"fig\", \"grape\"]. Phương án nào sau đây nêu đúng giá trị của phần tử A[5]?", options: ["\"elderberry\"", "\"grape\"", "\"fig\"", "\"date\""], answer: "\"fig\"" },
-                    { type: "multiple-choice", topic: "Lỗi chương trình", question: "Phương án nào sau đây điền từ đúng vào chỗ trống: \"... là một lỗi khi chương trình không tuân theo các quy định ngữ pháp của ngôn ngữ lập trình\"?", options: ["Lỗi ngữ nghĩa.", "Lỗi cú pháp.", "Lỗi logic.", "Lỗi ngoại lệ."], answer: "Lỗi cú pháp." },
-                    { type: "multiple-choice", topic: "Lập trình", question: "Phát biểu nào sau đây giải thích tại sao việc kiểm thử chương trình lại quan trọng trong quá trình lập trình?", options: ["Kiểm thử giúp đảm bảo rằng chương trình đã hoàn chỉnh và có thể chạy ngay lập tức mà không cần thay đổi gì.", "Kiểm thử giúp xác định lỗi và điều chỉnh chương trình để đảm bảo kết quả đúng với yêu cầu bài toán.", "Kiểm thử không cần thiết nếu chương trình chạy đúng ở lần đầu tiên.", "Kiểm thử chỉ cần thiết khi chương trình đã hoàn thành 100%."], answer: "Kiểm thử giúp xác định lỗi và điều chỉnh chương trình để đảm bảo kết quả đúng với yêu cầu bài toán." },
-                    { type: "multiple-choice", topic: "Lập trình", question: "Tại sao việc xác định cách tổ chức dữ liệu là một phần quan trọng trong bước tìm thuật toán?", options: ["Để làm cho chương trình nhanh hơn mà không cần tính toán.", "Để chọn được ngôn ngữ lập trình thích hợp cho bài toán.", "Để đảm bảo rằng thuật toán có thể hoạt động trên các cấu trúc dữ liệu phù hợp.", "Để giải quyết bài toán mà không cần kiểm thử chương trình."], answer: "Để đảm bảo rằng thuật toán có thể hoạt động trên các cấu trúc dữ liệu phù hợp." },
-                    { type: "multiple-choice", topic: "GIMP", question: "Phương án nào sau đây là vai trò của phần mềm GIMP trong việc thiết kế đồ họa?", options: ["Quản lý các tệp ảnh và lưu trữ chúng", "Cung cấp các công cụ thiết kế đồ họa như tạo văn bản, tô màu, ghép ảnh", "Tạo ra các phần mềm di động", "Hỗ trợ chỉnh sửa video"], answer: "Cung cấp các công cụ thiết kế đồ họa như tạo văn bản, tô màu, ghép ảnh" },
-                    { type: "multiple-choice", topic: "GIMP", question: "Trong GIMP, nếu một điểm ảnh có giá trị kênh alpha là 0 thì điều này có nghĩa gì sau đây?", options: ["Điểm ảnh đó có màu đen.", "Điểm ảnh đó có màu trắng.", "Điểm ảnh đó không hiển thị.", "Điểm ảnh đó hiển thị mờ."], answer: "Điểm ảnh đó không hiển thị." }
-                ]
-            },
-            {
-                part: "II. PHẦN TRẮC NGHIỆM ĐÚNG SAI",
-                instruction: "Từ câu 13 đến câu 16, mỗi câu hỏi có 4 phương án, học sinh chọn đúng hoặc sai cho từng phương án.",
-                questions: [
-                    { type: "true-false", topic: "Thư viện Python", question: "Trong một giờ học lập trình Python, thầy giáo giới thiệu cho các bạn học sinh lớp 10A về thư viện hàm có sẵn. Muốn sử dụng các hàm này chỉ cần kết nối hàm hoặc thư viện chứa hàm với chương trình, gọi đến hàm và truyền vào giá trị cho các tham số trong hàm. Các bạn học sinh sau khi nghe phân tích của thầy đã đưa ra một số nhận xét sau:", options: [{ text: "Trong Python, thư viện là một tập hợp gồm một số hàm đã được xây dựng sẵn.", answer: true }, { text: "Các hàm có sẵn trong Python được sử dụng luôn trong chương trình, không cần kết nối hàm hay thư viện chứa hàm với chương trình.", answer: false }, { text: "Khi thực hiện lời gọi hàm, bất kể hàm nào cũng cần truyền vào giá trị cho tham số để hàm thực hiện.", answer: false }, { text: "Python hỗ trợ nhiều hàm có sẵn giúp cho người lập trình viết chương trình nhanh gọn, không cần phải xây dựng các đoạn lệnh dài và phức tạp.", answer: true }] },
-                    { type: "true-false", topic: "Sắp xếp danh sách", question: "Một nhóm học sinh đang thực hiện bài tập sắp xếp danh sách A các điểm số của mình trong Python. Sau khi nhập các điểm số vào danh sách, nhóm học sinh muốn sắp xếp các điểm số theo thứ tự tăng dần. Các bạn học sinh đã đưa ra các nhận xét sau:", options: [{ text: "Hàm A.sort() chỉ sắp xếp danh sách theo thứ tự tăng dần.", answer: false }, { text: "Hàm A.sort() chỉ có thể được sử dụng với các danh sách chứa các phần tử cùng kiểu dữ liệu.", answer: false }, { text: "Khi thực hiện sắp xếp bằng hàm A.sort(), danh sách sẽ được thay đổi trực tiếp và không cần phải gán lại giá trị cho danh sách.", answer: true }, { text: "Để sắp xếp danh sách điểm theo thứ tự không giảm, có thể dùng lệnh A.sort().", answer: true }] },
-                    { type: "true-false", topic: "Nghề lập trình", question: "Một công ty công nghệ đang tổ chức hội thảo về nghề lập trình để tuyển dụng nhân sự trẻ. Sau khi tham gia hội thảo, số ứng viên đã có những nhận xét sau:", options: [{ text: "Công việc lập trình chỉ liên quan đến việc viết mã, không đòi hỏi sự kiên trì hay khả năng chịu áp lực.", answer: false }, { text: "Việc lập trình không đơn giản chỉ là viết mã, mà còn bao gồm gỡ lỗi, tối ưu hóa và kiểm thử phần mềm.", answer: true }, { text: "Lập trình viên thường phải làm việc với nhiều dự án cùng lúc và có thời hạn chặt chẽ.", answer: true }, { text: "Một lập trình viên giỏi không chỉ cần kỹ năng chuyên môn mà còn phải có khả năng giao tiếp để làm việc hiệu quả trong nhóm.", answer: true }] },
-                    { type: "true-false", topic: "GIMP", question: "An được giao nhiệm vụ thiết kế logo cho câu lạc bộ Tin học của trường bằng phần mềm GIMP. Logo gồm hình ảnh một chú chim cánh cụt đang đứng trên quả địa cầu. An đã vẽ hình chú chim cánh cụt trên một lớp và hình quả địa cầu trên một lớp khác. Khi An muốn di chuyển hình chú chim cánh cụt lên trên một chút so với quả địa cầu, bạn ấy nên thực hiện thao tác nào sau đây?", options: [{ text: "Công cụ Move Tool dùng để di chuyển các đối tượng được chọn.", answer: false }, { text: "Hình chú chim cánh cụt và hình quả địa cầu nằm trên hai lớp khác nhau, do đó có thể di chuyển độc lập.", answer: true }, { text: "Có thể di chuyển đồng thời cả hai hình ảnh cùng lúc sang vị trí khác so với ban đầu bằng cách nhóm hai lớp lại với nhau.", answer: false }, { text: "Muốn di chuyển hình chú chim cánh cụt lên trên một chút so với quả địa cầu, An không cần di chuyển lớp, chỉ cần di chuyển hình vẽ chú chim cánh cụt trên lớp ảnh tương ứng.", answer: false }] }
-                ]
-            }
-        ];
-        const QUIZ_TIME_SECONDS = 300; // 5 phút
-
-        // DOM Elements
-        const startScreen = document.getElementById('start-screen'), quizScreen = document.getElementById('quiz-screen'), resultScreen = document.getElementById('result-screen');
-        const classSelect = document.getElementById('class-select'), nameSelect = document.getElementById('name-select');
-        const startBtn = document.getElementById('start-btn'), infoError = document.getElementById('info-error');
-        const questionNumberEl = document.getElementById('question-number'), totalQuestionsEl = document.getElementById('total-questions'), timerEl = document.getElementById('timer');
-        const instructionBlock = document.getElementById('instruction-block'), partNameEl = document.getElementById('part-name'), partInstructionEl = document.getElementById('part-instruction');
-        const questionTextEl = document.getElementById('question-text'), optionsContainer = document.getElementById('options-container');
-        const submitBtn = document.getElementById('submit-btn');
-        const resultStudentNameEl = document.getElementById('result-student-name'), scoreEl = document.getElementById('score'), maxScoreEl = document.getElementById('max-score'), timeTakenEl = document.getElementById('time-taken');
-        const reviewContainer = document.getElementById('review-container');
-        const feedbackContainer = document.getElementById('feedback-container');
-        const copyBtn = document.getElementById('copy-btn'), copySuccess = document.getElementById('copy-success');
-        const endQuizBtn = document.getElementById('end-quiz-btn');
-
-        // State
-        let currentQuestionIndex = 0, score = 0, timeRemaining = QUIZ_TIME_SECONDS;
-        let userAnswers = [], timerInterval;
-        let selectedStudent = {}; 
-        let flattenedShuffledQuiz = [];
-        let completedStudents = []; // NEW: Array to track completed students
-
-        // --- Login Screen Logic ---
-        function populateClassSelect() {
-            const classNames = Object.keys(studentList);
-            classSelect.innerHTML = '<option value="">-- Vui lòng chọn lớp --</option>'; // Clear previous options
-            classNames.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                classSelect.appendChild(option);
-            });
+        },
+        "Python: Hàm & Thư viện": {
+            advice: "Hãy xem lại cách định nghĩa hàm, việc truyền tham số bắt buộc và tham số tùy chọn. Việc hiểu rõ lỗi `TypeError` khi thiếu tham số là rất quan trọng.",
+            links: [
+                { title: "Bài 15: Hàm trong Python (Tiếng Việt)", url: "https://howkteam.com/lessons/ham-trong-python-function" },
+                { title: "Python Functions (English)", url: "https://www.w3schools.com/python/python_functions.asp" },
+                { title: "Video: Tất tần tật về Hàm (YouTube)", url: "https://www.youtube.com/watch?v=I-n8_S-V6_o" }
+            ]
+        },
+        "Python: Chuỗi & Danh sách": {
+            advice: "Em cần ôn lại cách truy cập các phần tử trong chuỗi và danh sách bằng chỉ số (index), bao gồm cả cách cắt chuỗi/danh sách (slicing) và các hàm thông dụng.",
+            links: [
+                { title: "Bài 9: Kiểu dữ liệu List (Tiếng Việt)", url: "https://howkteam.com/lessons/kieu-du-lieu-list-trong-python-va-cac-phuong-thuc-xu-ly" },
+                { title: "Python Lists (English)", url: "https://www.w3schools.com/python/python_lists.asp" },
+                { title: "Video: List và String trong Python (YouTube)", url: "https://www.youtube.com/watch?v=x16QYI-O2Ak" }
+            ]
+        },
+        "Lập trình: Khái niệm & Gỡ lỗi": {
+            advice: "Việc phân biệt các loại lỗi (cú pháp, logic) và hiểu tầm quan trọng của việc kiểm thử là nền tảng. Hãy chắc chắn em nắm rõ các khái niệm cơ bản này.",
+            links: [
+                { title: "Các khái niệm lập trình cơ bản (Tiếng Việt)", url: "https://blog.topcv.vn/cac-khai-niem-lap-trinh-co-ban/" },
+                { title: "Debugging in Python (English)", url: "https://realpython.com/python-debugging-pdb/" },
+                { title: "Video: Debugging là gì? (YouTube)", url: "https://www.youtube.com/watch?v=p8R4zdaA_gA" }
+            ]
+        },
+        "Thiết kế đồ họa: GIMP": {
+            advice: "Em cần xem lại khái niệm về các lớp (layers) và kênh alpha (trong suốt) trong GIMP. Đây là những kiến thức cốt lõi để chỉnh sửa ảnh hiệu quả.",
+            links: [
+                { title: "GIMP cơ bản: Làm việc với Layer (Tiếng Việt)", url: "https://quantrimang.com/gimp-co-ban-bai-6-lam-viec-voi-layer-126895" },
+                { title: "GIMP Official Tutorials (English)", url: "https://www.gimp.org/tutorials/" },
+                { title: "Video: Hướng dẫn GIMP cho người mới (YouTube)", url: "https://www.youtube.com/watch?v=s43_KqA_m44" }
+            ]
+        },
+        "Lập trình: Kỹ năng nghề nghiệp": {
+            advice: "Hãy nhớ rằng lập trình không chỉ là viết code. Các kỹ năng mềm như làm việc nhóm, giao tiếp và quản lý thời gian cũng vô cùng quan trọng.",
+            links: [
+                { title: "9 Kỹ năng mềm IT cần có (Tiếng Việt)", url: "https://itviec.com/blog/9-ky-nang-mem-it-ban-can-biet/" },
+                { title: "Essential Soft Skills for Developers (English)", url: "https://www.freecodecamp.org/news/soft-skills-for-software-developers/" },
+                { title: "Video: Kỹ năng mềm cho lập trình viên (YouTube)", url: "https://www.youtube.com/watch?v=stq_I2pS_js" }
+            ]
         }
+    };
 
-        function handleClassChange() {
-            const selectedClass = classSelect.value;
-            nameSelect.innerHTML = '<option value="">-- Chọn tên của bạn --</option>'; 
-            startBtn.disabled = true;
+    // --- BIẾN TOÀN CỤC ---
+    let shuffledQuestions = [], currentUser = { class: null, name: null }, userAnswers = [], completedStudents = [];
+    let currentQuestionIndex = 0, timerInterval, timeRemaining = 5 * 60;
 
-            if (selectedClass) {
-                nameSelect.disabled = false;
-                const students = studentList[selectedClass];
-                students.forEach(student => {
-                    // NEW: Check if student has already completed the quiz
-                    const hasCompleted = completedStudents.some(s => s.stt === student.stt && s.className === selectedClass);
-                    if (!hasCompleted) {
-                        const option = document.createElement('option');
-                        option.value = student.stt;
-                        option.textContent = `${student.stt}. ${student.name}`;
-                        nameSelect.appendChild(option);
-                    }
+    // --- LẤY CÁC THÀNH PHẦN GIAO DIỆN ---
+    const loginScreen = document.getElementById('login-screen'), quizScreen = document.getElementById('quiz-screen'), resultScreen = document.getElementById('result-screen');
+    const classSelectBtn = document.getElementById('class-select-button'), studentSelectBtn = document.getElementById('student-select-button');
+    const classSelectOptions = document.getElementById('class-select-options'), studentSelectOptions = document.getElementById('student-select-options');
+    const startButton = document.getElementById('start-button');
+    const questionCounter = document.getElementById('question-counter'), timerDisplay = document.getElementById('timer'), instructionArea = document.getElementById('instruction-area');
+    const questionText = document.getElementById('question-text'), optionsContainer = document.getElementById('options-container'), nextButton = document.getElementById('next-button');
+    const resultGreeting = document.getElementById('result-greeting'), finalScore = document.getElementById('final-score'), timeTakenEl = document.getElementById('time-taken');
+    const copyButton = document.getElementById('copy-button'), copyFeedback = document.getElementById('copy-feedback'), feedbackContent = document.getElementById('feedback-content');
+    const reviewContainer = document.getElementById('review-container'), endButton = document.getElementById('end-button');
+
+    // --- LOGIC ---
+    const shuffleArray = arr => { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; };
+    const switchScreen = id => { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active', 'screen-transition')); const t = document.getElementById(id); if(t){ t.classList.add('active'); setTimeout(() => t.classList.add('screen-transition'), 10); } };
+
+    // --- MÀN HÌNH ĐĂNG NHẬP (VỚI CUSTOM DROPDOWN) ---
+    function toggleDropdown(optionsElement) {
+        if (optionsElement.classList.contains('hidden')) {
+            optionsElement.classList.remove('hidden');
+            setTimeout(() => optionsElement.classList.remove('opacity-0', 'scale-95'), 10);
+        } else {
+            optionsElement.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => optionsElement.classList.add('hidden'), 200);
+        }
+    }
+
+    function initLoginScreen() {
+        switchScreen('login-screen');
+        completedStudents = JSON.parse(localStorage.getItem('completedStudents_tin10_hk1')) || [];
+        
+        // Reset buttons
+        classSelectBtn.firstElementChild.textContent = '-- Vui lòng chọn lớp --';
+        classSelectBtn.firstElementChild.classList.add('text-gray-500');
+        studentSelectBtn.firstElementChild.textContent = '-- Vui lòng chọn tên --';
+        studentSelectBtn.firstElementChild.classList.add('text-gray-500');
+        studentSelectBtn.disabled = true;
+        studentSelectBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
+
+        // Populate class options
+        classSelectOptions.innerHTML = '';
+        Object.keys(studentData).forEach(c => {
+            const optionDiv = document.createElement('a');
+            optionDiv.href = '#';
+            optionDiv.className = 'block px-4 py-2 text-gray-700 hover:bg-indigo-50';
+            optionDiv.textContent = `Lớp ${c}`;
+            optionDiv.dataset.value = c;
+            optionDiv.addEventListener('click', (e) => {
+                e.preventDefault();
+                handleClassChange(c, `Lớp ${c}`);
+                toggleDropdown(classSelectOptions);
+            });
+            classSelectOptions.appendChild(optionDiv);
+        });
+    }
+
+    function handleClassChange(classValue, classText) {
+        currentUser.class = classValue;
+        classSelectBtn.firstElementChild.textContent = classText;
+        classSelectBtn.firstElementChild.classList.remove('text-gray-500');
+
+        studentSelectOptions.innerHTML = '';
+        studentSelectBtn.firstElementChild.textContent = '-- Vui lòng chọn tên --';
+        studentSelectBtn.firstElementChild.classList.add('text-gray-500');
+        currentUser.name = null;
+
+        if (classValue) {
+            studentSelectBtn.disabled = false;
+            studentSelectBtn.classList.remove('bg-gray-200', 'cursor-not-allowed');
+            studentSelectBtn.classList.add('bg-gray-50');
+            const students = studentData[classValue];
+            students.forEach(studentName => {
+                const studentId = `${classValue}-${studentName}`;
+                if (!completedStudents.includes(studentId)) {
+                    const optionDiv = document.createElement('a');
+                    optionDiv.href = '#';
+                    optionDiv.className = 'block px-4 py-2 text-gray-700 hover:bg-indigo-50';
+                    optionDiv.textContent = studentName;
+                    optionDiv.dataset.value = studentName;
+                    optionDiv.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        handleStudentChange(studentName);
+                        toggleDropdown(studentSelectOptions);
+                    });
+                    studentSelectOptions.appendChild(optionDiv);
+                }
+            });
+        } else {
+            studentSelectBtn.disabled = true;
+            studentSelectBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
+            studentSelectBtn.classList.remove('bg-gray-50');
+        }
+        updateStartState();
+    }
+    
+    function handleStudentChange(studentName) {
+        currentUser.name = studentName;
+        studentSelectBtn.firstElementChild.textContent = studentName;
+        studentSelectBtn.firstElementChild.classList.remove('text-gray-500');
+        updateStartState();
+    }
+
+    const updateStartState = () => { startButton.disabled = !(currentUser.class && currentUser.name); };
+
+    // --- MÀN HÌNH LÀM BÀI ---
+    function startQuiz() {
+        switchScreen('quiz-screen');
+        const shuffledMC = shuffleArray([...quizData.mc]); const shuffledTF = shuffleArray([...quizData.tf]);
+        shuffledQuestions = [...shuffledMC, ...shuffledTF];
+        userAnswers = new Array(shuffledQuestions.length).fill(null);
+        currentQuestionIndex = 0; timeRemaining = 5 * 60;
+        startTimer(); displayQuestion();
+    }
+    
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+            const seconds = (timeRemaining % 60).toString().padStart(2, '0');
+            timerDisplay.textContent = `${minutes}:${seconds}`;
+            if (timeRemaining <= 0) { clearInterval(timerInterval); submitQuiz(); }
+        }, 1000);
+    }
+
+    function displayQuestion() {
+        nextButton.disabled = true;
+        const questionData = shuffledQuestions[currentQuestionIndex];
+        const totalQuestions = shuffledQuestions.length;
+        const isMC = typeof questionData.options[0] === 'string';
+        questionCounter.textContent = `Câu ${currentQuestionIndex + 1}/${totalQuestions}`;
+        questionText.innerHTML = `<b class="text-[#3F51B5]">Câu ${currentQuestionIndex + 1}:</b> ${questionData.question.replace(/\n/g, '<br>')}`;
+        optionsContainer.innerHTML = '';
+        instructionArea.style.display = 'none';
+        const mcCount = quizData.mc.length;
+        if (currentQuestionIndex === 0) { instructionArea.innerHTML = `<h3 class="font-bold">Phần 1: Trắc nghiệm nhiều phương án lựa chọn</h3><p class="text-sm">Từ câu 1 đến câu ${mcCount}, mỗi câu học sinh chỉ chọn một phương án trả lời.</p>`; instructionArea.style.display = 'block'; } 
+        else if (currentQuestionIndex === mcCount) { instructionArea.innerHTML = `<h3 class="font-bold">Phần 2: Trắc nghiệm đúng sai</h3><p class="text-sm">Từ câu ${mcCount + 1} đến câu ${totalQuestions}, mỗi câu có 4 phương án, học sinh chọn Đúng hoặc Sai cho từng phương án.</p>`; instructionArea.style.display = 'block'; }
+        if (isMC) { displayMCQuestion(questionData); } else { displayTFQuestion(questionData); }
+        nextButton.textContent = currentQuestionIndex === totalQuestions - 1 ? 'Nộp bài và xem kết quả' : 'Tiếp theo';
+    }
+
+    function displayMCQuestion(q) {
+        const optionsToShuffle = q.options.map((opt, i) => ({ text: opt, originalIndex: i }));
+        q.shuffledOrder = shuffleArray(optionsToShuffle).map(opt => opt.originalIndex);
+        const optionLabels = ['A.', 'B.', 'C.', 'D.'];
+        q.shuffledOrder.forEach((originalIndex, displayIndex) => {
+            const card = document.createElement('div');
+            card.className = 'option-card p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100';
+            card.innerHTML = `<span class="font-bold mr-2 text-[#5C6BC0]">${optionLabels[displayIndex]}</span> ${q.options[originalIndex]}`;
+            card.addEventListener('click', () => { document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); userAnswers[currentQuestionIndex] = originalIndex; nextButton.disabled = false; });
+            optionsContainer.appendChild(card);
+        });
+    }
+
+    function displayTFQuestion(q) {
+        const optionLabels = ['a)', 'b)', 'c)', 'd)'];
+        userAnswers[currentQuestionIndex] = new Array(q.options.length).fill(null);
+        q.options.forEach((opt, i) => {
+            const item = document.createElement('div');
+            item.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200';
+            item.innerHTML = `<p><span class="font-bold mr-2 text-[#5C6BC0]">${optionLabels[i]}</span> ${opt.text}</p><div class="flex space-x-2 flex-shrink-0"><button data-choice="Đ" class="tf-btn px-4 py-1.5 text-sm font-semibold rounded-md bg-green-100 text-green-800 hover:bg-green-200 transition">Đúng</button><button data-choice="S" class="tf-btn px-4 py-1.5 text-sm font-semibold rounded-md bg-red-100 text-red-800 hover:bg-red-200 transition">Sai</button></div>`;
+            const buttons = item.querySelectorAll('.tf-btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                    userAnswers[currentQuestionIndex][i] = button.dataset.choice;
+                    if (userAnswers[currentQuestionIndex].every(ans => ans !== null)) { nextButton.disabled = false; }
                 });
-            } else {
-                nameSelect.disabled = true;
-            }
-        }
-
-        function handleNameChange() {
-            if (classSelect.value && nameSelect.value) {
-                startBtn.disabled = false;
-            } else {
-                startBtn.disabled = true;
-            }
-        }
-
-        // --- Main Functions ---
-        function startQuiz() {
-            const className = classSelect.value;
-            const studentStt = parseInt(nameSelect.value);
-
-            if (!className || !studentStt) {
-                infoError.classList.remove("hidden");
-                return;
-            }
-            infoError.classList.add("hidden");
-            
-            selectedStudent = studentList[className].find(s => s.stt === studentStt);
-
-            startScreen.classList.add("hidden");
-            quizScreen.classList.remove("hidden");
-            resultScreen.classList.add("hidden");
-            
-            const quizCopy = JSON.parse(JSON.stringify(fullQuizData));
-            flattenedShuffledQuiz = [];
-            quizCopy.forEach(part => {
-                shuffleArray(part.questions); 
-                part.questions.forEach(q => {
-                    shuffleArray(q.options); 
-                    q.partName = part.part;
-                    q.partInstruction = part.instruction;
-                });
-                flattenedShuffledQuiz.push(...part.questions);
             });
+            optionsContainer.appendChild(item);
+        });
+    }
 
-            currentQuestionIndex = 0;
-            score = 0;
-            timeRemaining = QUIZ_TIME_SECONDS;
-            userAnswers = flattenedShuffledQuiz.map(q => q.type === 'multiple-choice' ? null : new Array(q.options.length).fill(null));
-            totalQuestionsEl.textContent = flattenedShuffledQuiz.length;
-            
-            showQuestion();
-            startTimer();
-        }
-        
-        // --- ALL HELPER FUNCTIONS ---
-        
-        function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
-        
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timeRemaining--;
-                const minutes = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
-                const seconds = (timeRemaining % 60).toString().padStart(2, '0');
-                timerEl.textContent = `${minutes}:${seconds}`;
-                if (timeRemaining <= 0) {
-                    endQuiz();
+    const handleNextButtonClick = () => { currentQuestionIndex < shuffledQuestions.length - 1 ? (currentQuestionIndex++, displayQuestion()) : submitQuiz(); };
+
+    // --- MÀN HÌNH KẾT QUẢ ---
+    function submitQuiz() {
+        clearInterval(timerInterval);
+        const totalTime = 5 * 60; const timeTaken = totalTime - timeRemaining;
+        const minutes = Math.floor(timeTaken / 60).toString().padStart(2, '0');
+        const seconds = (timeTaken % 60).toString().padStart(2, '0');
+        const timeString = `${minutes}:${seconds}`;
+
+        let score = 0;
+        const totalMC = quizData.mc.length, totalTF = quizData.tf.length;
+        const maxScore = (totalMC * 0.25) + (totalTF * 1);
+        let incorrectTopics = {};
+        let correctTopics = {};
+
+        shuffledQuestions.forEach((q, index) => {
+            const userAnswer = userAnswers[index];
+            let isCorrect = false;
+            if (q.hasOwnProperty('shuffledOrder')) { // MC question
+                if (userAnswer === q.answer) { score += 0.25; isCorrect = true; }
+            } else { // TF question
+                let correctInTf = 0;
+                if(userAnswer) {
+                    userAnswer.forEach((ans, optIndex) => { if (ans === q.options[optIndex].answer) correctInTf++; });
                 }
-            }, 1000);
-        }
-
-        function endQuiz() {
-            clearInterval(timerInterval);
-            calculateScore();
-            // NEW: Add student to completed list
-            completedStudents.push({ stt: selectedStudent.stt, className: classSelect.value });
-            showResults();
-        }
-
-        function showQuestion(){
-            const e=flattenedShuffledQuiz[currentQuestionIndex];
-            const t=0===currentQuestionIndex||flattenedShuffledQuiz[currentQuestionIndex-1].partName!==e.partName;
-            t?(partNameEl.textContent=e.partName,partInstructionEl.textContent=e.partInstruction,instructionBlock.classList.remove("hidden")):instructionBlock.classList.add("hidden");
-            questionNumberEl.textContent=currentQuestionIndex+1;
-            questionTextEl.textContent=`Câu ${currentQuestionIndex+1}: ${e.question}`;
-            optionsContainer.innerHTML="";
-            "multiple-choice"===e.type?renderMultipleChoice(e):"true-false"===e.type&&renderTrueFalse(e);
-            submitBtn.textContent=currentQuestionIndex===flattenedShuffledQuiz.length-1?"Nộp bài và xem kết quả":"Tiếp theo";
-            submitBtn.disabled = true; // NEW: Disable button by default
-        }
-
-        function renderMultipleChoice(e){e.options.forEach((t,n)=>{const o=document.createElement("button"),s=String.fromCharCode(65+n)+". ";o.textContent=s+t,o.classList.add("w-full","text-left","p-4","border","border-blue-200","rounded-xl","transition-colors","duration-200","quiz-option"),o.onclick=()=>selectMultipleChoiceOption(t,o),userAnswers[currentQuestionIndex]===t&&o.classList.add("selected"),optionsContainer.appendChild(o)})}
-        function renderTrueFalse(e){e.options.forEach((t,n)=>{const o=document.createElement("div");o.className="p-4 border border-gray-200 rounded-lg flex justify-between items-center";const s=document.createElement("p");s.className="flex-grow mr-4";const i=String.fromCharCode(97+n)+") ";s.textContent=i+t.text;const a=document.createElement("div");a.className="flex space-x-2 flex-shrink-0";const r=document.createElement("button");r.textContent="Đúng",r.className="tf-btn px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 bg-green-100 text-green-800 hover:bg-green-200",r.onclick=()=>selectTrueFalseOption(n,!0,r,l);const l=document.createElement("button");l.textContent="Sai",l.className="tf-btn px-4 py-2 rounded-md font-semibold text-sm transition-all duration-200 bg-red-100 text-red-800 hover:bg-red-200",l.onclick=()=>selectTrueFalseOption(n,!1,r,l),!0===userAnswers[currentQuestionIndex][n]?r.classList.add("selected"):!1===userAnswers[currentQuestionIndex][n]&&l.classList.add("selected"),a.appendChild(r),a.appendChild(l),o.appendChild(s),o.appendChild(a),optionsContainer.appendChild(o)})}
-        
-        function selectMultipleChoiceOption(e,t){
-            userAnswers[currentQuestionIndex]=e;
-            document.querySelectorAll(".quiz-option").forEach(e=>e.classList.remove("selected"));
-            t.classList.add("selected");
-            submitBtn.disabled = false; // NEW: Enable button
-        }
-
-        function selectTrueFalseOption(e,t,n,o){
-            userAnswers[currentQuestionIndex][e]=t;
-            n.classList.remove("selected");
-            o.classList.remove("selected");
-            !0===t?n.classList.add("selected"):o.classList.add("selected");
-            // NEW: Enable button only if all sub-questions are answered
-            if (userAnswers[currentQuestionIndex].every(ans => ans !== null)) {
-                submitBtn.disabled = false;
+                if (correctInTf === 4) { score += 1; isCorrect = true; }
+                else if (correctInTf === 3) score += 0.5;
+                else if (correctInTf === 2) score += 0.25;
+                else if (correctInTf === 1) score += 0.1;
             }
-        }
-
-        function handleSubmission(){currentQuestionIndex<flattenedShuffledQuiz.length-1?(currentQuestionIndex++,showQuestion()):endQuiz()}
-        function calculateScore(){score=0,flattenedShuffledQuiz.forEach((e,t)=>{if("multiple-choice"===e.type)userAnswers[t]===e.answer&&(score+=.25);else if("true-false"===e.type){let n=0;e.options.forEach((e,o)=>{userAnswers[t][o]===e.answer&&n++}),1===n?score+=.1:2===n?score+=.25:3===n?score+=.5:4===n&&(score+=1)}})}
-        function calculateMaxScore(){let e=0;return fullQuizData.forEach(t=>{t.questions.forEach(t=>{"multiple-choice"===t.type?e+=.25:"true-false"===t.type&&(e+=1)})}),e}
-        
-        function showResults(){
-            quizScreen.classList.add("hidden");
-            resultScreen.classList.remove("hidden");
-            resultStudentNameEl.textContent=`${selectedStudent.stt}. ${selectedStudent.name}`;
-            const e=calculateMaxScore();
-            scoreEl.textContent=score.toFixed(2);
-            maxScoreEl.textContent=e.toFixed(2);
-            const t=QUIZ_TIME_SECONDS-timeRemaining;
-            const n=Math.floor(t/60);
-            const o=t%60;
-            timeTakenEl.textContent=`${n} phút ${o} giây`;
-            displayReview();
-            generatePersonalizedFeedback();
-        }
-
-        function displayReview(){reviewContainer.innerHTML="",flattenedShuffledQuiz.forEach((e,t)=>{const n=document.createElement("div");n.className="p-4 rounded-lg border";let o=`<p class="font-bold mb-3">Câu ${t+1}: ${e.question}</p><div class="space-y-2">`,s=!1;if("multiple-choice"===e.type){s=userAnswers[t]===e.answer,e.options.forEach((n,i)=>{const a=String.fromCharCode(65+i)+". ";let r="review-option p-3 rounded-md border ";n===e.answer?r+="correct":n===userAnswers[t]&&!s&&(r+="incorrect"),o+=`<div class="${r}">${a}${n}</div>`})}else if("true-false"===e.type){const i=userAnswers[t];let a=0;e.options.forEach((e,t)=>{i[t]===e.answer&&a++}),s=a===e.options.length,e.options.forEach((e,t)=>{const n=String.fromCharCode(97+t)+") ",s=i[t],a=e.answer,r=s===a;let l=null===s?"Chưa chọn":s?"Đúng":"Sai";o+=`<div class="p-3 rounded-md ${r?"bg-green-50":"bg-red-50"}"><p>${n}${e.text}</p><p class="text-xs mt-1">Bạn chọn: <span class="font-bold ${r?"text-green-700":"text-red-700"}">${l}</span>. Đáp án: <span class="font-bold text-green-700">${a?"Đúng":"Sai"}</span></p></div>`})}o+="</div>",n.innerHTML=o,n.classList.add(s?"border-green-300":"border-red-300"),reviewContainer.appendChild(n)})}
-        
-        function returnToLogin(){
-            startScreen.classList.remove("hidden");
-            quizScreen.classList.add("hidden");
-            resultScreen.classList.add("hidden");
-            
-            // Repopulate class list, which will trigger repopulating the name list with filtered students
-            populateClassSelect(); 
-            classSelect.value = "";
-            nameSelect.innerHTML = '<option value="">-- Chờ chọn lớp --</option>';
-            nameSelect.disabled = true;
-            startBtn.disabled = true;
-        }
-        
-        function generatePersonalizedFeedback() {
-            const topicStats = {};
-
-            flattenedShuffledQuiz.forEach((question, index) => {
-                const topic = question.topic || 'Chung';
-                if (!topicStats[topic]) {
-                    topicStats[topic] = { correct: 0, total: 0 };
-                }
-                topicStats[topic].total++;
-
-                let isCorrect = false;
-                if (question.type === 'multiple-choice') {
-                    if (userAnswers[index] === question.answer) isCorrect = true;
-                } else if (question.type === 'true-false') {
-                    const userChoices = userAnswers[index];
-                    if (userChoices.every((choice, i) => choice === question.options[i].answer)) isCorrect = true;
-                }
-                if (isCorrect) topicStats[topic].correct++;
-            });
-
-            const strengths = [], weaknesses = [], needsWork = [];
-            for (const topic in topicStats) {
-                const percentage = (topicStats[topic].correct / topicStats[topic].total) * 100;
-                if (percentage >= 75) strengths.push(topic);
-                else if (percentage < 50) weaknesses.push(topic);
-                else needsWork.push(topic);
+            if(isCorrect) {
+                correctTopics[q.topic] = (correctTopics[q.topic] || 0) + 1;
+            } else {
+                incorrectTopics[q.topic] = (incorrectTopics[q.topic] || 0) + 1;
             }
+        });
+        score = Math.round(score * 100) / 100;
 
-            let feedbackHTML = '';
+        resultGreeting.textContent = `Đây là kết quả bài làm của bạn, ${currentUser.name}.`;
+        finalScore.textContent = `${score}/${maxScore}`;
+        timeTakenEl.textContent = `Thời gian làm bài: ${timeString}`;
+
+        generateFeedback(correctTopics, incorrectTopics);
+        generateReview();
+        const studentId = `${currentUser.class}-${currentUser.name}`;
+        if (!completedStudents.includes(studentId)) {
+            completedStudents.push(studentId);
+            localStorage.setItem('completedStudents_tin10_hk1', JSON.stringify(completedStudents));
+        }
+        switchScreen('result-screen');
+    }
+    
+    function generateFeedback(correctTopics, incorrectTopics) {
+        let feedbackHTML = '<div>';
+        
+        feedbackHTML += '<h4 class="font-bold text-lg text-green-700">✅ Ưu điểm</h4>';
+        if (Object.keys(incorrectTopics).length === 0) {
+            feedbackHTML += '<p>✨ Xuất sắc! Em đã trả lời đúng tất cả các câu hỏi. Em đã nắm rất vững kiến thức và có kỹ năng làm bài tuyệt vời.</p>';
+        } else {
+            let strengths = Object.keys(correctTopics).filter(topic => !incorrectTopics[topic]);
             if (strengths.length > 0) {
-                feedbackHTML += `<div class="p-3 rounded-md bg-green-50 border border-green-200">
-                    <h4 class="font-bold text-green-800">✅ Ưu điểm</h4>
-                    <p class="mt-1 text-green-700">Chúc mừng! Bạn đã thể hiện sự am hiểu sâu sắc về các chủ đề: <strong>${strengths.join(', ')}</strong>. Hãy tiếp tục phát huy nhé.</p>
-                </div>`;
+                feedbackHTML += `<p>Em đã làm rất tốt và nắm vững kiến thức ở các chủ đề: <b>${strengths.join(', ')}</b>.</p>`;
+            } else {
+                feedbackHTML += '<p>Em đã có sự cố gắng trong bài làm. Hãy xem các phân tích dưới đây để cải thiện hơn nhé.</p>';
             }
-             if (needsWork.length > 0) {
-                feedbackHTML += `<div class="p-3 rounded-md bg-yellow-50 border border-yellow-200">
-                    <h4 class="font-bold text-yellow-800">⚠️ Cần củng cố</h4>
-                    <p class="mt-1 text-yellow-700">Bạn đã có kiến thức nền tảng nhưng cần củng cố thêm ở các chủ đề: <strong>${needsWork.join(', ')}</strong>. Hãy ôn tập lại để nắm chắc hơn.</p>
-                </div>`;
-            }
-            if (weaknesses.length > 0) {
-                 feedbackHTML += `<div class="p-3 rounded-md bg-red-50 border border-red-200">
-                    <h4 class="font-bold text-red-800">❌ Nhược điểm</h4>
-                    <p class="mt-1 text-red-700">Bạn cần tập trung ôn luyện kỹ hơn các chủ đề sau đây vì kết quả chưa tốt: <strong>${weaknesses.join(', ')}</strong>.</p>
-                </div>`;
-            }
-            feedbackHTML += `<div class="p-3 rounded-md bg-blue-50 border border-blue-200">
-                <h4 class="font-bold text-blue-800">📚 Gợi ý lộ trình học tập</h4>
-                <p class="mt-1 text-blue-700">Để cải thiện kết quả, bạn nên ưu tiên xem lại các phần kiến thức ở mục "Nhược điểm" và "Cần củng cố". Hãy thử làm lại các câu đã sai và tìm thêm các bài tập tương tự để thực hành. Việc luyện tập thường xuyên là chìa khóa để thành công!</p>
-            </div>`;
+        }
+        feedbackHTML += '</div>';
 
-            feedbackContainer.innerHTML = feedbackHTML;
+        if (Object.keys(incorrectTopics).length > 0) {
+            feedbackHTML += '<div class="mt-4">';
+            feedbackHTML += '<h4 class="font-bold text-lg text-red-700">❌ Nhược điểm</h4>';
+            feedbackHTML += '<p>Em cần xem lại và củng cố thêm kiến thức ở các chủ đề sau:</p><ul class="list-disc list-inside mt-2">';
+            for (const topic in incorrectTopics) {
+                feedbackHTML += `<li><b>${topic}:</b> còn sai ${incorrectTopics[topic]} câu.</li>`;
+            }
+            feedbackHTML += '</ul></div>';
         }
 
-        function getResultSummary() {
-            const maxScore = calculateMaxScore();
-            const timeText = timeTakenEl.textContent;
-            return `${selectedStudent.name}\tLớp: ${classSelect.value}\t${timeText}\t${score.toFixed(2)} / ${maxScore.toFixed(2)}`;
-        }
-
-        function copyResult() {
-            const summary = getResultSummary();
-            const textArea = document.createElement("textarea");
-            // Prevent scrolling
-            textArea.style.position = 'fixed';
-            textArea.style.top = '-9999px';
-            textArea.style.left = '-9999px';
-            
-            textArea.value = summary;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                copySuccess.classList.remove('hidden');
-                setTimeout(() => copySuccess.classList.add('hidden'), 3000);
-            } catch (err) {
-                console.error('Không thể sao chép', err);
+        if (Object.keys(incorrectTopics).length > 0) {
+            feedbackHTML += '<div class="mt-4">';
+            feedbackHTML += '<h4 class="font-bold text-lg text-blue-700">💡 Lộ trình học tập đề xuất</h4>';
+            feedbackHTML += '<p>Để cải thiện điểm số, em hãy tập trung vào các phần kiến thức còn yếu:</p><ul class="list-disc list-inside mt-2 space-y-3">';
+            for (const topic in incorrectTopics) {
+                const resource = resourceMap[topic];
+                if (resource) {
+                    feedbackHTML += `<li><b>Với chủ đề "${topic}":</b>
+                        <ul class="list-inside ml-4 text-sm space-y-1 mt-1">
+                            <li>- <b>Lời khuyên:</b> ${resource.advice}</li>
+                            <li>- <b>Tài liệu tham khảo:</b> ${resource.links.map(l => `<a href="${l.url}" target="_blank" class="text-indigo-600 hover:underline">${l.title}</a>`).join('; ')}</li>
+                        </ul>
+                    </li>`;
+                }
             }
-            document.body.removeChild(textArea);
+            feedbackHTML += '</ul></div>';
         }
         
-        // Event Listeners
-        classSelect.addEventListener('change', handleClassChange);
-        nameSelect.addEventListener('change', handleNameChange);
-        startBtn.addEventListener('click', startQuiz);
-        submitBtn.addEventListener('click', handleSubmission);
-        copyBtn.addEventListener('click', copyResult);
-        endQuizBtn.addEventListener('click', returnToLogin);
+        feedbackContent.innerHTML = feedbackHTML;
+    }
 
-        // Initial Load
-        populateClassSelect();
+    function generateReview() {
+        reviewContainer.innerHTML = '';
+        shuffledQuestions.forEach((q, index) => {
+            const isMC = q.hasOwnProperty('shuffledOrder');
+            const reviewBlock = document.createElement('div');
+            reviewBlock.className = 'p-4 border border-gray-200 rounded-lg';
+            let optionsHTML = `<p class="text-md font-semibold mb-3"><b class="text-[#3F51B5]">Câu ${index + 1} (${q.topic}):</b> ${q.question.replace(/\n/g, '<br>')}</p><div class="space-y-2">`;
+            
+            if (isMC) {
+                const optionLabels = ['A.', 'B.', 'C.', 'D.'];
+                q.shuffledOrder.forEach((originalIndex, displayIndex) => {
+                    const userChoice = userAnswers[index];
+                    const isCorrect = originalIndex === q.answer;
+                    const isSelected = originalIndex === userChoice;
+                    let classes = 'review-option p-3 border border-gray-200 rounded-md';
+                    if (isSelected && isCorrect) classes += ' correct';
+                    else if (isSelected && !isCorrect) classes += ' incorrect';
+                    else if (isCorrect) classes += ' missed-correct';
+                    optionsHTML += `<div class="${classes}"><span class="font-bold mr-2 text-[#5C6BC0]">${optionLabels[displayIndex]}</span> ${q.options[originalIndex]}</div>`;
+                });
+            } else { // TF
+                const optionLabels = ['a)', 'b)', 'c)', 'd)'];
+                q.options.forEach((opt, optIndex) => {
+                    const userChoice = userAnswers[index] ? userAnswers[index][optIndex] : null;
+                    const isCorrect = userChoice === opt.answer;
+                    let trueBtnClass = 'tf-btn px-3 py-1 text-sm rounded';
+                    let falseBtnClass = 'tf-btn px-3 py-1 text-sm rounded';
+
+                    if(userChoice === 'Đ') {
+                        trueBtnClass += isCorrect ? ' review-tf-btn correct' : ' review-tf-btn incorrect';
+                    } else if (userChoice === 'S') {
+                        falseBtnClass += isCorrect ? ' review-tf-btn correct' : ' review-tf-btn incorrect';
+                    }
+
+                    optionsHTML += `<div class="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                        <p><span class="font-bold mr-2 text-[#5C6BC0]">${optionLabels[optIndex]}</span> ${opt.text}</p>
+                        <div class="flex space-x-2">
+                            <span class="${trueBtnClass}">Đúng</span>
+                            <span class="${falseBtnClass}">Sai</span>
+                        </div>
+                    </div>`;
+                });
+            }
+            optionsHTML += `</div>`;
+            reviewBlock.innerHTML = optionsHTML;
+            reviewContainer.appendChild(reviewBlock);
+        });
+    }
+    
+    function handleCopy() {
+        const scoreText = finalScore.textContent;
+        const timeText = timeTakenEl.textContent.split(': ')[1] || 'N/A';
+        const textToCopy = `${currentUser.name} ${currentUser.class} ${timeText} ${scoreText}`;
+        
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '-9999px';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                copyFeedback.style.opacity = '1';
+                setTimeout(() => { copyFeedback.style.opacity = '0'; }, 2000);
+            }
+        } catch (err) {
+            console.error('Không thể sao chép', err);
+        }
+
+        document.body.removeChild(textArea);
+    }
+    
+    // --- KHỞI TẠO & SỰ KIỆN ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initLoginScreen();
+        classSelectBtn.addEventListener('click', () => toggleDropdown(classSelectOptions));
+        studentSelectBtn.addEventListener('click', () => toggleDropdown(studentSelectOptions));
+        
+        window.addEventListener('click', function(e) {
+            if (!classSelectBtn.contains(e.target) && !classSelectOptions.contains(e.target)) {
+                classSelectOptions.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => classSelectOptions.classList.add('hidden'), 200);
+            }
+            if (!studentSelectBtn.contains(e.target) && !studentSelectOptions.contains(e.target)) {
+                studentSelectOptions.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => studentSelectOptions.classList.add('hidden'), 200);
+            }
+        });
+
+        startButton.addEventListener('click', startQuiz);
+        nextButton.addEventListener('click', handleNextButtonClick);
+        copyButton.addEventListener('click', handleCopy);
+        endButton.addEventListener('click', initLoginScreen);
+    });
     </script>
 </body>
 </html>
